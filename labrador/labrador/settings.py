@@ -78,17 +78,6 @@ WSGI_APPLICATION = 'labrador.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'labrador',
-        'USER': 'lijunjie',
-        'PASSWORD': 'ljj0706',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
-    }
-}
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
@@ -124,3 +113,6 @@ LOCALE_PATHS = (
 EXCEL_PATH = os.path.join(MEDIA_ROOT, 'excel')
 EXCEL_RECORD_COL = [u'房号', u'租客', u'租金', u'电费', u'网费', u'充电',
                     u'小计', u'有没支付', u'备注']
+
+if DEBUG:
+    from labrador.conf.labrador_conf_dev import *
