@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div class="row J_mainContent" id="content-main">
+  <div class="wrapper wrapper-content animated fadeInRight gray-bg">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="ibox float-e-margins">
+          <div class="ibox-title">
+            <h2>导入¥¥记录</h2>
+            <a class="btn btn-info" type="button" href="{% url 'money' %}" style="position: relative; float: right; margin-top: -2.8em; margin-right: 2em;">
+            <span class="bold">返回</span>
+            </a>
+          </div>
+          <div class="ibox-content">
+            <form enctype="multipart/form-data" method="post" class="form-horizontal">
+              {% csrf_token %}
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <input id="id_file" type="file" name="file" />
+                </div>
+              </div>
+              <div class="hr-line-dashed"></div>
+              <div class="form-group">
+                <div class="col-sm-4 col-sm-offset-2">
+                    <button class="btn btn-primary" type="submit">导入</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock main %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div class="row J_mainContent" id="content-main">
+  <div class="wrapper wrapper-content gray-bg">
+    <div class="middle-box text-center animated fadeInDown">
+      <h2>欢迎使用</h2>
+
+      <div class="error-desc">
+        <p>出租屋信息管理系统，这个首页只是暂时安排，最终会显示常看的信息</p>
+        <p>
+          <a href="{% url 'money' %}" class="btn btn-block btn-outline btn-primary">进入查看帐单</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock main %}

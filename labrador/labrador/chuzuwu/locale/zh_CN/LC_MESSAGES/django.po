@@ -1,0 +1,207 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-11-15 01:24+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: models.py:10 templatetags/handler.py:41
+msgid "Lived"
+msgstr "已出租"
+
+#: models.py:11 templatetags/handler.py:43
+msgid "Empty"
+msgstr "空空的"
+
+#: models.py:14
+msgid "Male"
+msgstr "男士"
+
+#: models.py:15
+msgid "Female"
+msgstr "女士"
+
+#: models.py:21
+msgid "Add time"
+msgstr "添加时间"
+
+#: models.py:23
+msgid "Update time"
+msgstr "修改时间"
+
+#: models.py:29 models.py:35
+msgid "Record period"
+msgstr "记录日期"
+
+#: models.py:36
+msgid "Record periods"
+msgstr "记录日期"
+
+#: models.py:41
+msgid "House name"
+msgstr "楼名"
+
+#: models.py:48 models.py:72
+msgid "House"
+msgstr "楼"
+
+#: models.py:49
+msgid "Houses"
+msgstr "楼"
+
+#: models.py:53
+msgid "Tenant name"
+msgstr "租客姓名"
+
+#: models.py:57
+msgid "Tenant sex"
+msgstr "租客性别"
+
+#: models.py:60
+msgid "Tenant phone"
+msgstr "租客手机"
+
+#: models.py:66 models.py:77 models.py:91 models.py:120
+msgid "Tenant"
+msgstr "租客"
+
+#: models.py:67
+msgid "Tenants"
+msgstr "租客"
+
+#: models.py:71
+msgid "Room number"
+msgstr "房号"
+
+#: models.py:76
+msgid "Room status"
+msgstr "房间状态"
+
+#: models.py:78 models.py:92
+msgid "Room rent"
+msgstr "房间租金"
+
+#: models.py:84 models.py:89 models.py:118
+msgid "Room"
+msgstr "房"
+
+#: models.py:85
+msgid "Rooms"
+msgstr "房"
+
+#: models.py:90 models.py:119
+msgid "Period"
+msgstr "记录期"
+
+#: models.py:93
+msgid "Room deposit"
+msgstr "房间押金"
+
+#: models.py:94
+msgid "Promise deposit"
+msgstr "房间定金"
+
+#: models.py:95
+msgid "TV deposit"
+msgstr "电视押金"
+
+#: models.py:97
+msgid "Is room deposit back"
+msgstr "是否退回房押金"
+
+#: models.py:99
+msgid "Is promise deposit back"
+msgstr "是否退回定金"
+
+#: models.py:101
+msgid "Is tv deposit back"
+msgstr "是否退回电视押金"
+
+#: models.py:102
+msgid "Move in date"
+msgstr "搬入日期"
+
+#: models.py:104
+msgid "Move out date"
+msgstr "搬走日期"
+
+#: models.py:107
+msgid "RoomRecord remark"
+msgstr "入住记录备注"
+
+#: models.py:113
+msgid "RoomRecord"
+msgstr "入住记录"
+
+#: models.py:114
+msgid "RoomRecords"
+msgstr "入住记录"
+
+#: models.py:122
+msgid "Quantity of electricity"
+msgstr "电表量"
+
+#: models.py:124
+msgid "Quantity of water"
+msgstr "水表量"
+
+#: models.py:126
+msgid "Electirc fee"
+msgstr "电费"
+
+#: models.py:128
+msgid "Water fee"
+msgstr "水费"
+
+#: models.py:130
+msgid "Rent fee"
+msgstr "租金"
+
+#: models.py:132
+msgid "Internet fee"
+msgstr "网费"
+
+#: models.py:134
+msgid "Charge fee"
+msgstr "充电"
+
+#: models.py:136
+msgid "TV fee"
+msgstr "电视费"
+
+#: models.py:138
+msgid "Specail fee"
+msgstr "特殊费用"
+
+#: models.py:140
+msgid "Total fee"
+msgstr "小计"
+
+#: models.py:142
+msgid "Is get money"
+msgstr "是否给钱"
+
+#: models.py:145
+msgid "Record remark"
+msgstr "收入记录备注"
+
+#: models.py:151
+msgid "Record"
+msgstr "收入记录"
+
+#: models.py:152
+msgid "Records"
+msgstr "收入记录"

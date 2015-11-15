@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div class="row J_mainContent" id="content-main">
+  <div class="wrapper wrapper-content animated fadeInRight gray-bg">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="ibox float-e-margins">
+          <div class="ibox-title">
+            <h2>添加¥¥记录</h2>
+            <a class="btn btn-info" type="button" href="{% url 'money' %}" style="position: relative; float: right; margin-top: -2.8em; margin-right: 2em;">
+            <span class="bold">返回</span>
+            </a>
+          </div>
+          <div class="ibox-content">
+            <form method="post" class="form-horizontal">
+              {% csrf_token %}
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_room">{{ record_form.room.label }}</label>
+                <div class="col-sm-10">
+                  <select id="id_room" class="form-control" name="room">
+                    {% for room in room_options %}
+                    <option value="{{ room.id }}" {% if room == cur_room %}selected{% endif %}>{{ room.number }}</option>
+                    {% empty %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_period">{{ record_form.period.label }}</label>
+                <div class="col-sm-10">
+                  <select id="id_period" class="form-control" name="period">
+                    {% for period in period_options %}
+                    <option value="{{ period.id }}">{{ period }}</option>
+                    {% empty %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="hr-line-dashed"></div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_rent_fee">{{ record_form.rent_fee.label }}</label>
+                <div class="col-sm-10">
+                  <input id="id_rent_fee" name="rent_fee" value="0" type="number" class="form-control">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_electric_fee">{{ record_form.electric_fee.label }}</label>
+                <div class="col-sm-10">
+                  <input id="id_electric_fee" name="electric_fee" step="any" value="0" type="number" class="form-control">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_internet_fee">{{ record_form.internet_fee.label }}</label>
+                <div class="col-sm-10">
+                  <input id="id_internet_fee" name="internet_fee" value="0" type="number" class="form-control">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_charge_fee">{{ record_form.charge_fee.label }}</label>
+                <div class="col-sm-10">
+                  <input id="id_charge_fee" name="charge_fee" value="0" type="number" class="form-control">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_tv_fee">{{ record_form.tv_fee.label }}</label>
+                <div class="col-sm-10">
+                  <input id="id_tv_fee" name="tv_fee" value="0" type="number" class="form-control">
+                </div>
+              </div>
+              <div class="hr-line-dashed"></div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_is_get_money">{{ record_form.is_get_money.label }}</label>
+                <div class="col-sm-10">
+                  <input checked="checked" id="id_is_get_money" name="is_get_money" type="checkbox" class="form-control">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_remark">{{ record_form.remark.label }}</label>
+                <div class="col-sm-10">
+                  <input id="id_remark" maxlength="512" name="remark" type="text" class="form-control">
+                </div>
+              </div>
+              <div class="hr-line-dashed"></div>
+              <div class="form-group">
+                <div class="col-sm-4 col-sm-offset-2">
+                    <button class="btn btn-primary" type="submit">保存内容</button>
+                    <button class="btn btn-white" type="reset">重置</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock main %}

@@ -1,0 +1,133 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="renderer" content="webkit">
+  <title>出租屋信息管理系统－专用版</title>
+  <!--[if lt IE 8]>
+  <script>
+    alert('H+已不支持IE6-8，请使用谷歌、火狐等浏览器\n或360、QQ等国产浏览器的极速模式浏览本页面！');
+  </script>
+  <![endif]-->
+  {% block css %}
+  <link href="{% static 'hplus/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'plugins/fontello/css/labrador.css' %}" rel="stylesheet">
+  <link href="{% static 'hplus/css/animate.min.css' %}" rel="stylesheet">
+  <link href="{% static 'hplus/css/style.min.css' %}" rel="stylesheet">
+  <link href="{% static 'hplus/plugins/layer/layer.css' %}" rel="stylesheet" id="layui_layer_skinlayercss">
+  <link rel="stylesheet" href="{% static 'plugins/datapicker/datepicker3.css' %}">
+  <link rel="stylesheet" href="{% static 'plugins/toastr/toastr.min.css' %}">
+  <style>
+  .text-center {
+    text-align: center;
+  }
+  </style>
+  {% endblock css %}
+</head>
+{% block body %}
+<body class="fixed-sidebar full-height-layout pace-done gray-bg">
+  <div class="pace pace-inactive">
+    <div class="pace-progress" data-progress-text="100%" data-progress="99" style="width: 100%;">
+      <div class="pace-progress-inner"></div>
+    </div>
+    <div class="pace-activity"></div>
+  </div>
+  <div id="wrapper">
+    {% block sidebar %}
+      {% include "sidebar.html" %}
+    {% endblock sidebar %}
+    <div id="page-wrapper" class="gray-bg">
+      {% block nav %}
+        {% include "nav.html" %}
+      {% endblock nav %}
+      {% block main %}
+      {% endblock main %}
+    </div>
+    
+
+  {% block javascript %}
+  <!-- 全局js -->
+  <script src="{% static 'hplus/js/jquery-2.1.1.min.js' %}"></script>
+  <script src="{% static 'hplus/js/bootstrap.min.js' %}"></script>
+  <!-- 左侧导航插件 -->
+  <script src="{% static 'hplus/plugins/metisMenu/jquery.metisMenu.js' %}"></script>
+  <script src="{% static 'hplus/plugins/layer/layer.min.js' %}"></script>
+
+  <!-- 自定义js -->
+  <script src="{% static 'hplus/js/hplus.min.js' %}"></script>
+  <script src="{% static 'plugins/bootstrap-datepicker.js' %}"></script>
+  <!-- 消息通知 -->
+  <script src="{% static 'plugins/toastr/toastr.min.js' %}"></script>
+  <script>
+  jQuery(document).ready(function() {
+    // toastr初始化开始
+    toastr.options = {
+       "closeButton": true,
+       "debug": false,
+       "positionClass": "toast-top-right",
+       "onclick": null,
+       "showDuration": "1000",
+       "hideDuration": "1000",
+       "timeOut": "3000",
+       "extendedTimeOut": "1000",
+       "showEasing": "swing",
+       "hideEasing": "linear",
+       "showMethod": "fadeIn",
+       "hideMethod": "fadeOut"
+    };
+    {% for v in messages %}
+    var $tags = '{{ v.tags }}';
+    var $msg = '{{ v }}';
+    toastr[$tags]($msg, '');
+    {% empty %}
+    {% endfor %}
+    // toastr初始化结束
+  });
+  </script>
+  <script>
+    $(document).ready(function(){
+      /* datepicker */
+      $('#id_move_in_date').datepicker({
+        format: 'yyyy-mm-dd',
+        todayBtn: "linked",
+        keyboardNavigation: false,
+        forceParse: false,
+        calendarWeeks: false,
+        autoclose: true
+      });
+      $('#id_move_out_date').datepicker({
+        format: 'yyyy-mm-dd',
+        todayBtn: "linked",
+        keyboardNavigation: false,
+        forceParse: false,
+        calendarWeeks: false,
+        autoclose: true
+      });
+      $('#id_search_date').datepicker({
+        format: 'yyyy-mm-dd',
+        todayBtn: "linked",
+        keyboardNavigation: false,
+        forceParse: false,
+        calendarWeeks: false,
+        autoclose: true
+      });
+
+      url_path = window.location.pathname;
+      var cur_link = $('ul#side-menu').find('>li>ul>li>a[href="'+url_path+'"]');
+      var no_ul_link = $('ul#side-menu').find('>li>a[href="'+url_path+'"]');
+      if(cur_link.length > 0){
+        cur_link.parent('li').parent('ul.collapse').collapse('show');
+        cur_link.parent('li').parent('ul').parent('li').addClass('active');
+        cur_link.css('color', '#19aa8d');
+      }else if(no_ul_link.length > 0){
+        no_ul_link.css('color', '#19aa8d');
+      }
+    });
+  </script>
+  {% endblock javascript %}
+
+</body>
+{% endblock body %}
+</html>
