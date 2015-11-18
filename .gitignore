@@ -12,3 +12,4 @@ labrador_conf_dev.py
 migrations/
 statics/
 media/
+deploy/
