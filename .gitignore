@@ -9,7 +9,6 @@ labrador_conf_dev.py
 *.mo
 
 # migrations
-migrations/
 statics/
 media/
 deploy/
