@@ -63,4 +63,10 @@ urlpatterns = patterns(
     url(r'^room/record/update/(?P<rid>\d+)$',
         'labrador.chuzuwu.views.room_record_update',
         name='room_record_update'),
+    url(r'^api/room/enter/(?P<rid>\d+)$',
+        'labrador.chuzuwu.views.enter_room',
+        name='enter_room'),
+    url(r'^api/room/leave/(?P<rid>\d+)$',
+        'labrador.chuzuwu.views.leave_room',
+        name='leave_room'),
 )

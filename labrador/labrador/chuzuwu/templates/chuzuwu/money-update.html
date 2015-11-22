@@ -53,6 +53,12 @@
                 </div>
               </div>
               <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_electricity">{{ record_form.electricity.label }}</label>
+                <div class="col-sm-10">
+                  <input id="id_electricity" name="electricity" step="any" value="{{ record.electricity }}" type="number" class="form-control">
+                </div>
+              </div>
+              <div class="form-group">
                 <label class="col-sm-2 control-label" for="id_electric_fee">{{ record_form.electric_fee.label }}</label>
                 <div class="col-sm-10">
                   <input id="id_electric_fee" name="electric_fee" step="any" value="{{ record.electric_fee }}" type="number" class="form-control">
@@ -61,19 +67,19 @@
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="id_internet_fee">{{ record_form.internet_fee.label }}</label>
                 <div class="col-sm-10">
-                  <input id="id_internet_fee" name="internet_fee" step="any" value="{{ record.internet_fee }}" type="number" class="form-control">
+                  <input id="id_internet_fee" name="internet_fee" type="checkbox" {% if record.internet_fee %}checked="checked"{% endif %} class="form-control">
                 </div>
               </div>
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="id_charge_fee">{{ record_form.charge_fee.label }}</label>
                 <div class="col-sm-10">
-                  <input id="id_charge_fee" name="charge_fee" step="any" value="{{ record.charge_fee }}" type="number" class="form-control">
+                  <input id="id_charge_fee" name="charge_fee" type="checkbox" {% if record.charge_fee %}checked="checked"{% endif %}class="form-control">
                 </div>
               </div>
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="id_tv_fee">{{ record_form.tv_fee.label }}</label>
                 <div class="col-sm-10">
-                  <input id="id_tv_fee" name="tv_fee" step="any" value="{{ record.tv_fee }}" type="number" class="form-control">
+                  <input id="id_tv_fee" name="tv_fee" type="checkbox" {% if record.tv_fee %}checked="checked"{% endif %} class="form-control">
                 </div>
               </div>
               <div class="form-group">
@@ -83,12 +89,6 @@
                 </div>
               </div>
               <div class="hr-line-dashed"></div>
-              <div class="form-group">
-                <label class="col-sm-2 control-label" for="id_is_get_money">{{ record_form.is_get_money.label }}</label>
-                <div class="col-sm-10">
-                  <input {% if record.is_get_money %}checked="checked"{% endif %} id="id_is_get_money" name="is_get_money" type="checkbox" class="form-control">
-                </div>
-              </div>
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="id_remark">{{ record_form.remark.label }}</label>
                 <div class="col-sm-10">

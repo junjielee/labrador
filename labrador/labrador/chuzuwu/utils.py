@@ -6,6 +6,11 @@ from .models import (
     Period,
     RoomRecord,
 )
+from ..settings import (
+    INTERNET_FEE,
+    CHARGE_FEE,
+    TV_FEE,
+)
 
 
 def get_first_no_record_room(all_rooms, all_periods):
@@ -86,7 +91,6 @@ def calculate_total_fee(datas):
         int(datas.get('internet_fee')) +
         int(datas.get('tv_fee'))
     )
-    print total_fee
     return total_fee
 
 
@@ -153,3 +157,38 @@ def get_monthly_statistics(records):
             record_count['num_no_money'] += 1
     record_count['remark'] = u'没给钱的有%s个' % record_count['num_no_money']
     return record_count
+
+
+def get_record_type(datas):
+    """
+        判断record类型：入住的收入，退房的收入，还是稳定每月的收入
+        args: datas是QueryDict类型
+        return: move_in, move_out, or monthly
+    """
+    if datas.get('electric_fee') == 0 and datas.get('rent_fee') != 0:
+        return 'move_in'
+    elif datas.get('electric_fee') != 0 and datas.get('rent_fee') != 0:
+        return 'monthly'
+    else:
+        return 'move_out'
+
+
+def change_form_fee(datas):
+    """
+        改变form.POST中的网费，充电费，电视费，输入的是有还是没
+        args: datas是QueryDict类型
+        return: 修改为费用值的datas
+    """
+    if datas.get('internet_fee'):
+        datas.setlist('internet_fee', [unicode(INTERNET_FEE)])
+    else:
+        datas.setlist('internet_fee', [unicode(0)])
+    if datas.get('charge_fee'):
+        datas.setlist('charge_fee', [unicode(CHARGE_FEE)])
+    else:
+        datas.setlist('charge_fee', [unicode(0)])
+    if datas.get('tv_fee'):
+        datas.setlist('tv_fee', [unicode(TV_FEE)])
+    else:
+        datas.setlist('tv_fee', [unicode(0)])
+    return datas

@@ -15,7 +15,6 @@
           <div class="ibox-content">
             <form method="post" class="form-horizontal">
               {% csrf_token %}
-              {{ room_form }}
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="id_number">{{ room_form.number.label }}</label>
                 <div class="col-sm-10">

@@ -110,9 +110,24 @@ LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'templates/locale'),
 )
 
+# 表格信息
 EXCEL_PATH = os.path.join(MEDIA_ROOT, 'excel')
 EXCEL_RECORD_COL = [u'房号', u'租客', u'租金', u'电费', u'网费', u'充电',
                     u'小计', u'有没支付', u'备注']
+# 价格信息
+INTERNET_FEE = 40
+CHARGE_FEE = 10
+TV_FEE = 25
+
+# 接口返回信息
+RETURN_MSG = {
+    'success': {'code': 20000, 'msg': 'success'},
+    'room_empty': {'code': 20001, 'msg': 'room is empty'},
+    'room_record_not_found': {'code': 20002, 'msg': 'room record not found'},
+    'room_record_finish': {'code': 20003, 'msg': 'room record finish'},
+    'room_lived': {'code': 20004, 'msg': 'room is lived'},
+}
+
 
 if DEBUG:
     from labrador.conf.labrador_conf_dev import *

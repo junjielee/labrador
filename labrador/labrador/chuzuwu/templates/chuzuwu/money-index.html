@@ -26,7 +26,7 @@
                   <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 86px;">充电</th>
                   <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 86px;">电视费</th>
                   <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 106px;">小计</th>
-                  <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 50px;">给钱</th>
+                  <!-- <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 50px;">给钱</th> -->
                   <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 250px;">备注</th>
                   <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 66px;">操作</th>
                 </tr>
@@ -42,11 +42,11 @@
                   <td class="">{{ record.charge_fee|to_blank }}</td>
                   <td class="">{{ record.tv_fee|to_blank }}</td>
                   <td class="">{{ record.total_fee|interger|to_blank }}</td>
-                  <td class="text-center">
+                  <!-- <td class="text-center">
                     {% if record.is_get_money %}
                     <i class="fa fa-check text-navy"></i>
                     {% endif %}
-                  </td>
+                  </td> -->
                   <td class="center">{{ record.remark }}</td>
                   <td class="center">
                     <a class="btn btn-warning btn-xs" href="{% url 'money_update' rid=record.id %}" style="margin-bottom: 0px;">更新</a>
@@ -63,7 +63,7 @@
                   <td class="">{{ record_count.charge|to_blank }}</td>
                   <td class="">{{ record_count.tv|to_blank }}</td>
                   <td class="">{{ record_count.total|interger|to_blank }}</td>
-                  <td class=""></td>
+                  <!-- <td class=""></td> -->
                   <td class="">{{ record_count.remark }}</td>
                   <td class=""></td>
                 </tr>

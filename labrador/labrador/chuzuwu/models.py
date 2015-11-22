@@ -109,6 +109,9 @@ class RoomRecord(TimeModel):
     def __unicode__(self):
         return u'%s-%s' % (self.room, self.tenant)
 
+    def is_finish(self):
+        return self.is_room_deposit_back and self.is_promise_deposit_back and self.is_tv_deposit_back
+
     class Meta:
         verbose_name = _('RoomRecord')
         verbose_name_plural = _('RoomRecords')

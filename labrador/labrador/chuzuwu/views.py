@@ -3,6 +3,7 @@
 
 import xlrd
 import xlwt
+import json
 from datetime import date as module_date
 
 from django.shortcuts import (
@@ -12,10 +13,16 @@ from django.shortcuts import (
     redirect,
 )
 from django.contrib.auth.decorators import login_required
-from django.http import StreamingHttpResponse
+from django.http import StreamingHttpResponse, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib import messages
+from django.shortcuts import get_object_or_404
 from django.conf import settings
+from ..settings import (
+    EXCEL_RECORD_COL,
+    EXCEL_PATH,
+    RETURN_MSG,
+)
 
 from .models import (
     Period,
@@ -42,6 +49,7 @@ from .utils import (
     file_iterator,
     handle_upload_record_file,
     get_monthly_statistics,
+    change_form_fee,
 )
 
 
@@ -109,6 +117,8 @@ def money_add(request):
             messages.info(request, '%s房间还没入住记录,请先添加入住记录' % room.number)
             return redirect('room_record_add')
         datas.setlist('tenant', [unicode(tenant.id)])
+        datas.setlist('rent_fee', [unicode(room.rent)])
+        datas = change_form_fee(datas)
         period_id = datas.get('period')
         if tenant:
             try:
@@ -154,7 +164,11 @@ def money_update(request, rid):
     except Record.DoesNotExist:
         print 'money update error, record not found'
     if request.method == 'POST':
-        datas = request.POST
+        datas = request.POST.copy()
+        datas = change_form_fee(datas)
+
+        total_fee = calculate_total_fee(datas)
+        datas.setlist('total_fee', [unicode(total_fee)])
         form = RecordForm(datas, instance=record)
         if form.is_valid():
             form.save()
@@ -349,7 +363,7 @@ def room_record_add(request):
     period_options = Period.objects.all().order_by('-period')
     room_options = Room.objects.all().order_by('number')
     if request.method == 'POST':
-        datas = request.POST
+        datas = request.POST.copy()
         # 设置房间状态
         room_id = datas.get('room')
         tenant_id = datas.get('tenant')
@@ -361,9 +375,10 @@ def room_record_add(request):
         room = Room.objects.get(id=room_id)
         room.status = 'L'
         room.tenant = tenant
-        room.rent = int(datas.get('rent'))
+        # room.rent = int(datas.get('rent'))
         room.save()
 
+        datas.setlist('rent', [unicode(room.rent)])
         form = RoomRecordForm(datas)
         if form.is_valid():
             form.save()
@@ -438,10 +453,10 @@ def download_record(request, pid):
         .select_related('room', 'period', 'tenant')
     workbook = xlwt.Workbook()
     sheet = workbook.add_sheet('sheet1')
-    col_len = len(settings.EXCEL_RECORD_COL)
+    col_len = len(EXCEL_RECORD_COL)
     sheet.write_merge(0, 0, 0, col_len-1, unicode(period))
     for i in range(col_len):
-        sheet.write(1, i, settings.EXCEL_RECORD_COL[i])
+        sheet.write(1, i, EXCEL_RECORD_COL[i])
     # 简单统计
     record_count = {
         'number': u'合计',
@@ -493,7 +508,7 @@ def download_record(request, pid):
     sheet.write(rownum, 9, record_count['total'])
     # 保存到本地
     file_name = '%s.xls' % period.period.strftime('%Y-%m')
-    file_fullname = settings.EXCEL_PATH + '/record/' + file_name
+    file_fullname = EXCEL_PATH + '/record/' + file_name
     workbook.save(file_fullname)
 
     # 实现下载
@@ -507,7 +522,7 @@ def download_record(request, pid):
 def upload_record(request):
     if request.method == 'POST':
         file = request.FILES['file']
-        path = settings.EXCEL_PATH + '/record/import/'
+        path = EXCEL_PATH + '/record/import/'
         handle_upload_record_file(file, path)
         # 读取文件内容到数据库
         period_year = int(file.name.split('-')[0])
@@ -541,3 +556,82 @@ def upload_record(request):
     context = RequestContext(request, {})
     return render_to_response('chuzuwu/upload-record.html',
                               context_instance=context)
+
+
+@login_required
+def leave_room(request, rid):
+    room = get_object_or_404(Room, pk=int(rid))
+    return_data = {'room_number': room.number}
+    if room.status == 'E':
+        return_data.update(RETURN_MSG['room_empty'])
+        return HttpResponse(json.dumps(return_data),
+                            content_type="application/json")
+    else:
+        room_records = RoomRecord.objects.filter(room=room).order_by('-move_in_date')
+        if room_records.count() == 0:
+            return_data.update(RETURN_MSG['room_record_not_found'])
+            return HttpResponse(json.dumps(return_data),
+                                content_type="application/json")
+        else:
+            room_record = room_records[0]
+            if room_record.is_finish():
+                return_data.update(RETURN_MSG['room_record_finish'])
+                return HttpResponse(json.dumps(return_data),
+                                    content_type="application/json")
+            else:
+                room_record.move_out_date = module_date.today()
+                tasks = []
+                if not room_record.is_room_deposit_back and room_record.room_deposit != 0:
+                    tasks.append('退回押金：¥{0}'.format(room_record.room_deposit))
+                if not room_record.is_promise_deposit_back and room_record.promise_deposit != 0:
+                    tasks.append('退回订金：¥{0}'.format(room_record.promise_deposit))
+                if not room_record.is_tv_deposit_back and room_record.tv_deposit != 0:
+                    tasks.append('退回电视机顶盒押金：¥{0}'.format(room_record.tv_deposit))
+                room_record.is_promise_deposit_back = True
+                room_record.is_room_deposit_back = True
+                room_record.is_tv_deposit_back = True
+                room_record.save()
+                return_data.update(RETURN_MSG['success'])
+                return_data.update({'tasks': tasks})
+    room.status = 'E'
+    room.save()
+    return HttpResponse(json.dumps(return_data),
+                        content_type="application/json")
+
+
+@login_required
+def enter_room(request, rid):
+    # 暂时没用
+    room = get_object_or_404(Room, pk=int(rid))
+    return_data = {'room_number': room.number}
+    if room.status == 'L':
+        return_data.update(RETURN_MSG['room_lived'])
+        return HttpResponse(json.dumps(return_data, separator=(',', ':')),
+                                       content_type="application/json")
+    else:
+        datas = json.loads(request.POST['datas'])
+        period_id = int(datas['period_id'])
+        tenant_id = int(datas['tenant_id'])
+        # rent 从room获取
+        room_deposit = int(datas['room_deposit'])
+        promise_deposit = int(datas['promise_deposit'])
+        tv_deposit = int(datas['tv_deposit'])
+        remark = int(datas['remark'])
+        period, created = get_object_or_404(Period, pk=period_id)
+        tenant, created = get_object_or_404(Tenant, pk=tenant_id)
+        room_record = RoomRecord.objects.create(
+            room=room,
+            period=period,
+            tenant=tenant,
+            rent=room.rent,
+            room_deposit=room_deposit,
+            promise_deposit=promise_deposit,
+            tv_deposit=tv_deposit,
+            move_in_date=module_date.today(),
+            remark=remark
+        )
+        return_data.update(RETURN_MSG['success'])
+    room.status = 'L'
+    room.save()
+    return HttpResponse(json.dumps(return_data, separator=(',', ':')),
+                                   content_type="application/json")
