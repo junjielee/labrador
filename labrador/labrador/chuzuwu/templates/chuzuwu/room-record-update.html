@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div class="row J_mainContent" id="content-main">
+  <div class="wrapper wrapper-content animated fadeInRight gray-bg">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="ibox float-e-margins">
+          <div class="ibox-title">
+            <h2>修改入住记录</h2>
+            <a class="btn btn-info" type="button" href="{% url 'room_record' %}" style="position: relative; float: right; margin-top: -2.8em; margin-right: 2em;">
+            <span class="bold">返回</span>
+            </a>
+          </div>
+          <div class="ibox-content">
+            <form method="post" class="form-horizontal">
+              {% csrf_token %}
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_room">{{ record_form.room.label }}</label>
+                <div class="col-sm-10">
+                  <select id="id_room" class="form-control" name="room">
+                    <option value="{{ record.room.id }}" selected="selected">{{ record.room.number }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_period">{{ record_form.period.label }}</label>
+                <div class="col-sm-10">
+                  <select id="id_period" class="form-control" name="period">
+                    {% for period in period_options %}
+                    <option value="{{ period.id }}" {% if period == record.period %}selected="selected"{% endif %}>{{ period }}</option>
+                    {% empty %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_tenant">{{ record_form.tenant.label }}</label>
+                <div class="col-sm-10">
+                  <select id="id_tenant" class="form-control" name="tenant">
+                    {% for tenant in tenant_options %}
+                    <option value="{{ tenant.id }}" {% if tenant == record.tenant %}selected="selected"{% endif %}>{{ tenant }}</option>
+                    {% empty %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="hr-line-dashed"></div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_rent">{{ record_form.rent.label }}</label>
+                <div class="col-sm-10">
+                  <input id="id_rent" name="rent" value="{{ record.rent }}" type="number" class="form-control">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_room_deposit">{{ record_form.room_deposit.label }}</label>
+                <div class="col-sm-10">
+                  <input id="id_room_deposit" name="room_deposit" value="{{ record.room_deposit }}" type="number" class="form-control">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_promise_deposit">{{ record_form.promise_deposit.label }}</label>
+                <div class="col-sm-10">
+                  <input id="id_promise_deposit" name="promise_deposit" value="{{ record.promise_deposit }}" type="number" class="form-control">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_tv_deposit">{{ record_form.tv_deposit.label }}</label>
+                <div class="col-sm-10">
+                  <input id="id_tv_deposit" name="tv_deposit" value="{{ record.tv_deposit }}" type="number" class="form-control">
+                </div>
+              </div>
+              <div class="hr-line-dashed"></div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_is_room_deposit_back">{{ record_form.is_room_deposit_back.label }}</label>
+                <div class="col-sm-10">
+                  <input {% if record.is_room_deposit_back %}checked="checked"{% endif %} id="id_is_room_deposit_back" name="is_room_deposit_back" type="checkbox" class="form-control">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_is_promise_deposit_back">{{ record_form.is_promise_deposit_back.label }}</label>
+                <div class="col-sm-10">
+                  <input {% if record.is_promise_deposit_back %}checked="checked"{% endif %} id="id_is_promise_deposit_back" name="is_promise_deposit_back" type="checkbox" class="form-control">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_is_tv_deposit_back">{{ record_form.is_tv_deposit_back.label }}</label>
+                <div class="col-sm-10">
+                  <input {% if record.is_tv_deposit_back %}checked="checked"{% endif %} id="id_is_tv_deposit_back" name="is_tv_deposit_back" type="checkbox" class="form-control">
+                </div>
+              </div>
+              <div class="hr-line-dashed"></div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_move_in_date">{{ record_form.move_in_date.label }}</label>
+                <div class="col-sm-10">
+                  <div class="input-group date">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <input id="id_move_in_date" name="move_in_date" type="text" class="form-control" value="{{ record.move_in_date|date:'Y-m-d' }}" required>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_move_out_date">{{ record_form.move_out_date.label }}</label>
+                <div class="col-sm-10">
+                  <div class="input-group date">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <input id="id_move_out_date" name="move_out_date" type="text" class="form-control" value="{% if record.move_out_date %}{{ record.move_out_date|date:'Y-m-d' }}{% endif %}">
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="id_remark">{{ record_form.remark.label }}</label>
+                <div class="col-sm-10">
+                  <input id="id_remark" maxlength="512" name="remark" type="text" class="form-control" value="{{ record.remark }}">
+                </div>
+              </div>
+              <div class="hr-line-dashed"></div>
+              <div class="form-group">
+                <div class="col-sm-4 col-sm-offset-2">
+                    <button class="btn btn-primary" type="submit">保存内容</button>
+                    <button class="btn btn-white" type="reset">重置</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock main %}

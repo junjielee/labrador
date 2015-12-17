@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load handler %}
+
+{% block main %}
+<div class="row J_mainContent" id="content-main">
+  <div class="wrapper wrapper-content animated fadeInRight gray-bg">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="ibox float-e-margins">
+          <div class="ibox-title">
+            <h2>{{ cur_period }}</h2>
+            <a class="btn btn-primary" type="button" href="{% url 'room_record_add' %}" style="position: relative; float: right; margin-top: -2.8em; margin-right: 2em;">
+            <span class="bold">添加</span>
+            </a>
+          </div>
+          <div class="ibox-content">
+
+          <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper form-inline" role="grid">
+            <table class="table table-striped table-bordered table-hover dataTables-example dataTable" id="DataTables_Table_0" aria-describedby="DataTables_Table_0_info">
+              <thead>
+                <tr role="row">
+                  <th class="bg-write" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 66px;">房号</th>
+                  <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 86px;">租客</th>
+                  <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 86px;">租金</th>
+                  <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 86px;">押金</th>
+                  <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 86px;">定金</th>
+                  <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 86px;">电视押金</th>
+                  <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 86px;">搬入时间</th>
+                  <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 160px;">备注</th>
+                  <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 66px;">操作</th>
+                </tr>
+              </thead>
+              
+              <tbody>
+                {% for record in room_records %}
+                <tr class="gradeA odd">
+                  <td class="">{{ record.room.number }}</td>
+                  <td class="">{{ record.tenant }}</td>
+                  <td class="">{{ record.rent|to_blank }}</td>
+                  <td class="center">{{ record.room_deposit|to_blank }}</td>
+                  <td class="center">{{ record.promise_deposit|to_blank }}</td>
+                  <td class="center">{{ record.tv_deposit|to_blank }}</td>
+                  <td class="center">{{ record.move_in_date|date:"Y-m-d" }}</td>
+                  <td class="center">{{ record.remark }}</td>
+                  <td class="center">
+                    <a class="btn btn-warning btn-xs" href="{% url 'room_record_update' rid=record.id %}" style="margin-bottom: 0px;">更新</a>
+                  </td>
+                </tr>
+                {% empty %}
+                {% endfor %}
+              </tbody>
+            </table>
+            <div class="row">
+              <div class="col-sm-12">
+                <div class="dataTables_paginate paging_simple_numbers" style="float: right;">
+                  <ul class="pagination">
+                    {% if previous_period %}
+                    <li class="paginate_button previous" aria-controls="DataTables_Table_0" tabindex="0" id="DataTables_Table_0_previous">
+                      <a href="{% url 'room_record' %}?period_id={{ previous_period.id }}">上一月</a>
+                    </li>
+                    {% endif %}
+                    <li class="paginate_button " aria-controls="DataTables_Table_0" tabindex="0"><a href="#">日历选择</a></li>
+                    {% if next_period %}
+                    <li class="paginate_button next" aria-controls="DataTables_Table_0" tabindex="0" id="DataTables_Table_0_next">
+                      <a href="{% url 'room_record' %}?period_id={{ next_period.id }}">下一月</a>
+                    </li>
+                    {% endif %}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock main %}

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load handler %}
+
+{% block main %}
+<div class="row J_mainContent" id="content-main">
+  <div class="wrapper wrapper-content animated fadeInRight gray-bg">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="ibox float-e-margins">
+          <div class="ibox-title">
+            <h2>房间信息</h2>
+            <a class="btn btn-primary" type="button" href="{% url 'room_add' %}" style="position: relative; float: right; margin-top: -2.8em; margin-right: 2em;">
+            <span class="bold">添加</span>
+            </a>
+          </div>
+          <div class="ibox-content">
+
+          <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper form-inline" role="grid">
+            <table class="table table-striped table-bordered table-hover dataTables-example dataTable" id="DataTables_Table_0" aria-describedby="DataTables_Table_0_info">
+              <thead>
+                <tr role="row">
+                  <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 106px;background: 0 0;">房号</th>
+                  <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 106px;">租客</th>
+                  <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 106px;">租金</th>
+                  <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 106px;">是否已出租</th>
+                  <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 66px;">操作</th>
+                </tr>
+              </thead>
+              
+              <tbody>
+                {% for room in rooms %}
+                <tr class="gradeA odd">
+                  <td class="">{{ room.number }}</td>
+                  <td class="center">{% if room.tenant %}{{ room.tenant }}{% endif %}</td>
+                  <td class="center">{{ room.rent|to_blank }}</td>
+                  <td class="center">
+                    {% if room.status == 'L' %}
+                    <span class="label label-primary">{{ room.status|to_room_status }}</span>
+                    {% else %}
+                      {{ room.status|to_room_status }}  
+                    {% endif %}
+                  </td>
+                  <td class="center">
+                    <a class="btn btn-warning btn-xs" href="{% url 'room_update' rid=room.id %}" style="margin-bottom: 0px;">更新</a>
+                    <button class="btn btn-danger btn-xs btn-leave-room" style="margin-bottom: 0px;" data-api-url="{% url 'leave_room' rid=room.id %}">退房</button>
+                  </td>
+                </tr>
+                {% empty %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock main %}
+{% block javascript %}
+{{ block.super }}
+<script>
+jQuery(document).ready(function($) {
+  $('.btn-leave-room').click(function(event) {
+    var url = $(this).attr('data-api-url');
+    console.log('url:' + url);
+    $.post(url, {}, function(data, textStatus, xhr) {
+      if(data['code'] == 20000){
+        swal({
+          title: data['room_number'].toString() + "退房成功",
+          text: data['tasks'].join(','),
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#DD6B55",
+          confirmButtonText: "添加入住",
+          cancelButtonText: data['room_number'].toString() + "没入住",
+          closeOnConfirm: false,
+          closeOnCancel: false
+        },
+        function(a) {
+          if (a) {
+            location.href = '/room/record/add';
+          } else {
+            location.href = '/room';
+          }
+        });
+      }else if(data['code'] == 20001){
+        swal({
+          title: "数据问题",
+          text: data['room_number'].toString() + "房还没出租",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#DD6B55",
+          confirmButtonText: "添加入住",
+          closeOnConfirm: false
+        },
+        function() {
+          location.href = '/room/record/add';
+        });
+      }else if(data['code'] == 20002){
+        swal({
+          title: "数据问题",
+          text: data['room_number'].toString() + "房没有入住记录",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#DD6B55",
+          confirmButtonText: "添加入住",
+          closeOnConfirm: false
+        },
+        function() {
+          location.href = '/room/record/add';
+        });
+      }else if(data['code'] == 20003){
+        swal({
+          title: "数据问题",
+          text: data['room_number'].toString() + "房已经退房",
+        });
+      }
+    });
+  });
+});
+</script>
+{% endblock javascript %}

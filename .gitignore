@@ -1,0 +1,14 @@
+*.bak
+*.py[cod]
+
+
+# Django
+labrador_conf_dev.py
+
+# Translations
+*.mo
+
+# migrations
+statics/
+media/
+deploy/

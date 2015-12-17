@@ -1,0 +1,100 @@
+{% load staticfiles %}
+<!--左侧导航开始-->
+<nav class="navbar-default navbar-static-side" role="navigation">
+    <div class="nav-close">
+        <i class="fa fa-times-circle"></i>
+    </div>
+    <div class="sidebar-collapse" style="width: auto; height: 100%;">
+        <ul class="nav" id="side-menu">
+            <li class="nav-header">
+                <div class="dropdown profile-element">
+                    <span>
+                        <img alt="image" class="img-circle" src="{% static 'img/header.jpg' %}">
+                    </span>
+                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                        <span class="clear">
+                        <span class="block m-t-xs">
+                            <strong class="font-bold">liu-sihua</strong>
+                        </span>
+                        <span class="text-muted text-xs block">
+                            超级管理员<b class="caret"></b>
+                        </span>
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                        <!-- <li><a class="J_menuItem" href="#" data-index="1">个人资料</a>
+                        </li>
+                        <li class="divider"></li> -->
+                        <li>
+                            <a href="{% url 'logout' %}">安全退出</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="logo-element">刘
+                </div>
+            </li>
+            <li>
+                <a href="{% url 'index' %}">
+                    <i class="fa fa-home"></i>
+                    <span class="nav-label">主页</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fa fa-yen"></i>
+                    <span class="nav-label">费用管理</span>
+                    <span class="fa arrow fa-angle-left"></span>
+                </a>
+                <ul class="nav nav-second-level collapse">
+                    <li><a href="{% url 'money' %}">账单</a>
+                    </li>
+                    <li><a href="{% url 'money_add' %}">添加 ¥ ¥</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fa fa-user"></i>
+                    <span class="nav-label">租客管理</span>
+                    <span class="fa arrow fa-angle-left"></span>
+                </a>
+                <ul class="nav nav-second-level collapse">
+                    <li><a class="J_menuItem" href="{% url 'tenant' %}">租客</a>
+                    </li>
+                    <li><a class="J_menuItem" href="{% url 'tenant_add' %}">添加租客</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fa fa-building"></i>
+                    <span class="nav-label">房间管理</span>
+                    <span class="fa arrow fa-angle-left"></span>
+                </a>
+                <ul class="nav nav-second-level collapse">
+                    <li><a class="J_menuItem" href="{% url 'room' %}" data-index="53">房间</a>
+                    </li>
+                    <li><a class="J_menuItem" href="{% url 'room_add' %}">添加房间</a>
+                    </li>
+                    <li><a class="J_menuItem" href="{% url 'room_record' %}" data-index="53">入住记录</a>
+                    </li>
+                    <li><a class="J_menuItem" href="{% url 'room_record_add' %}">添加入住记录</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fa fa fa-chart-bar"></i>
+                    <span class="nav-label">统计图表</span>
+                    <span class="fa arrow fa-angle-left"></span>
+                </a>
+                <ul class="nav nav-second-level collapse">
+                    <li>
+                        <a class="J_menuItem" href="#" data-index="9">开发中...</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+<!--左侧导航结束-->

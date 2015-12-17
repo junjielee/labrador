@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block body %}
+<body class="gray-bg">
+
+    <div class="middle-box text-center loginscreen animated fadeInDown">
+      <div>
+        <div><h1 class="logo-name">刘</h1></div>
+        <h3>出租屋信息管理系统－专用版</h3>
+        <form class="m-t" role="form" action="?next={% url 'index' %}" method="post">
+          {% csrf_token %}
+          <div class="form-group">
+              <input type="text" class="form-control" placeholder="用户名" required="" name="username">
+          </div>
+          <div class="form-group">
+              <input type="password" class="form-control" placeholder="密码" required="" name="password">
+          </div>
+          <button type="submit" class="btn btn-primary block full-width m-b">登 录</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="{% static 'hplus/js/jquery-2.1.1.min.js' %}"></script>
+    <script src="{% static 'js/login.js' %}"></script>
+</body>
+{% endblock body %}
