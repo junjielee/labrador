@@ -111,8 +111,7 @@ LOCALE_PATHS = (
 )
 
 # 表格信息
-EXCEL_PATH = os.path.join(MEDIA_ROOT, 'excel')
-EXCEL_RECORD_COL = [u'房号', u'租客', u'租金', u'电费', u'网费', u'充电',
+EXCEL_RECORD_COL = [u'房号', u'租客', u'租金', u'电费', u'网费', u'充电', u'电视费',
                     u'小计', u'备注']
 # 价格信息
 INTERNET_FEE = 40

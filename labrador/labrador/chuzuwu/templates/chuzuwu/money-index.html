@@ -31,7 +31,7 @@
                   <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 66px;">操作</th>
                 </tr>
               </thead>
-              
+
               <tbody>
                 {% for record in records %}
                 <tr class="gradeA odd">
@@ -64,7 +64,8 @@
                   <td class="">{{ record_count.tv|to_blank }}</td>
                   <td class="">{{ record_count.total|interger|to_blank }}</td>
                   <!-- <td class=""></td> -->
-                  <td class="">{{ record_count.remark }}</td>
+                  <!-- <td class="">{{ record_count.remark }}</td> -->
+                  <td class=""></td>
                   <td class=""></td>
                 </tr>
                 {% endif %}

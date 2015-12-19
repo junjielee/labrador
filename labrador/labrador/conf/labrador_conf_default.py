@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+EXCEL_EXPORT_PATH = ''
+EXCEL_IMPORT_PATH = ''
 
 DATABASES = {
     'default': {

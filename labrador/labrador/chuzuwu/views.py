@@ -17,11 +17,11 @@ from django.http import StreamingHttpResponse, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
-from django.conf import settings
 from ..settings import (
     EXCEL_RECORD_COL,
-    EXCEL_PATH,
     RETURN_MSG,
+    EXCEL_EXPORT_PATH,
+    EXCEL_IMPORT_PATH,
 )
 
 from .models import (
@@ -451,7 +451,6 @@ def download_record(request, pid):
     period = Period.objects.get(id=pid)
     records = Record.objects.filter(period=period).order_by('room__number')\
         .select_related('room', 'period', 'tenant')
-    print '导出记录数：%s' %len(records)
     workbook = xlwt.Workbook()
     sheet = workbook.add_sheet('sheet1')
     col_len = len(EXCEL_RECORD_COL)
@@ -488,13 +487,14 @@ def download_record(request, pid):
         sheet.write(x, 3, records[j].electric_fee if records[j].electric_fee != 0 else '')
         sheet.write(x, 4, records[j].internet_fee if records[j].internet_fee != 0 else '')
         sheet.write(x, 5, records[j].charge_fee if records[j].charge_fee != 0 else '')
-        sheet.write(x, 6, records[j].total_fee if records[j].total_fee != 0 else '')
+        sheet.write(x, 6, records[j].tv_fee if records[j].tv_fee != 0 else '')
+        sheet.write(x, 7, records[j].total_fee if records[j].total_fee != 0 else '')
         # 如果没给钱，设置style颜色
         # sheet.write(x, 7, '' if records[j].is_get_money else u'没给钱')
-        sheet.write(x, 7, unicode(records[j].remark))
+        sheet.write(x, 8, unicode(records[j].remark))
         if (j+1) % 12 == 0:
             number_total = record_count['total'] - record_count['last_total']
-            sheet.write(x, 8, number_total)
+            sheet.write(x, 9, number_total)
             record_count['last_total'] = record_count['total']
     # 写入最后一行统计信息
     rownum = len(records) + 2
@@ -506,14 +506,12 @@ def download_record(request, pid):
     sheet.write(rownum, 6, record_count['tv'])
     sheet.write(rownum, 7, record_count['total'])
     # sheet.write(rownum, 8, u'没给钱的有%s个' % record_count['num_no_money'])
-    sheet.write(rownum, 8, record_count['total'])
-    print 'finish write'
+    sheet.write(rownum, 9, record_count['total'])
     # 保存到本地
     file_name = '%s.xls' % period.period.strftime('%Y-%m')
-    file_fullname = EXCEL_PATH + '/record/' + file_name
+    file_fullname = EXCEL_EXPORT_PATH + file_name
     workbook.save(file_fullname)
 
-    print 'finish save in: %s' % file_fullname
     # 实现下载
     response = StreamingHttpResponse(file_iterator(file_fullname))
     response['Content-Type'] = 'application/octet-stream'
@@ -525,8 +523,7 @@ def download_record(request, pid):
 def upload_record(request):
     if request.method == 'POST':
         file = request.FILES['file']
-        path = EXCEL_PATH + '/record/import/'
-        handle_upload_record_file(file, path)
+        handle_upload_record_file(file, EXCEL_IMPORT_PATH)
         # 读取文件内容到数据库
         period_year = int(file.name.split('-')[0])
         period_month = int(file.name.split('-')[1].split('.')[0])
@@ -534,7 +531,7 @@ def upload_record(request):
         period, created = Period.objects.get_or_create(period=cur_date)
         house = House.objects.first()
 
-        workbook = xlrd.open_workbook(path + file.name)
+        workbook = xlrd.open_workbook(EXCEL_IMPORT_PATH + file.name)
         sheet = workbook.sheet_by_index(0)
         for rownum in range(2, sheet.nrows-1):
             # 每一行格式[房号，租金，电费，网费，充电，小计，备注]
