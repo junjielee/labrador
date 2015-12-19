@@ -451,6 +451,7 @@ def download_record(request, pid):
     period = Period.objects.get(id=pid)
     records = Record.objects.filter(period=period).order_by('room__number')\
         .select_related('room', 'period', 'tenant')
+    print '导出记录数：%s' %len(records)
     workbook = xlwt.Workbook()
     sheet = workbook.add_sheet('sheet1')
     col_len = len(EXCEL_RECORD_COL)
@@ -506,11 +507,13 @@ def download_record(request, pid):
     sheet.write(rownum, 7, record_count['total'])
     # sheet.write(rownum, 8, u'没给钱的有%s个' % record_count['num_no_money'])
     sheet.write(rownum, 8, record_count['total'])
+    print 'finish write'
     # 保存到本地
     file_name = '%s.xls' % period.period.strftime('%Y-%m')
     file_fullname = EXCEL_PATH + '/record/' + file_name
     workbook.save(file_fullname)
 
+    print 'finish save in: %s' % file_fullname
     # 实现下载
     response = StreamingHttpResponse(file_iterator(file_fullname))
     response['Content-Type'] = 'application/octet-stream'
