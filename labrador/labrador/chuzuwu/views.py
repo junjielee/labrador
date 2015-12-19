@@ -467,7 +467,7 @@ def download_record(request, pid):
         'tv': 0,
         'last_total': 0,
         'total': 0,
-        'num_no_money': 0,
+        # 'num_no_money': 0,
     }
     # 统计 and 写入数据
     for j in range(len(records)):
@@ -477,8 +477,8 @@ def download_record(request, pid):
         record_count['charge'] += records[j].charge_fee
         record_count['tv'] += records[j].tv_fee
         record_count['total'] += records[j].total_fee
-        if not records[j].is_get_money:
-            record_count['num_no_money'] += 1
+        # if not records[j].is_get_money:
+        #     record_count['num_no_money'] += 1
 
         x = j+2
         sheet.write(x, 0, records[j].room.number)
@@ -489,11 +489,11 @@ def download_record(request, pid):
         sheet.write(x, 5, records[j].charge_fee if records[j].charge_fee != 0 else '')
         sheet.write(x, 6, records[j].total_fee if records[j].total_fee != 0 else '')
         # 如果没给钱，设置style颜色
-        sheet.write(x, 7, '' if records[j].is_get_money else u'没给钱')
-        sheet.write(x, 8, unicode(records[j].remark))
+        # sheet.write(x, 7, '' if records[j].is_get_money else u'没给钱')
+        sheet.write(x, 7, unicode(records[j].remark))
         if (j+1) % 12 == 0:
             number_total = record_count['total'] - record_count['last_total']
-            sheet.write(x, 9, number_total)
+            sheet.write(x, 8, number_total)
             record_count['last_total'] = record_count['total']
     # 写入最后一行统计信息
     rownum = len(records) + 2
@@ -504,8 +504,8 @@ def download_record(request, pid):
     sheet.write(rownum, 5, record_count['charge'])
     sheet.write(rownum, 6, record_count['tv'])
     sheet.write(rownum, 7, record_count['total'])
-    sheet.write(rownum, 8, u'没给钱的有%s个' % record_count['num_no_money'])
-    sheet.write(rownum, 9, record_count['total'])
+    # sheet.write(rownum, 8, u'没给钱的有%s个' % record_count['num_no_money'])
+    sheet.write(rownum, 8, record_count['total'])
     # 保存到本地
     file_name = '%s.xls' % period.period.strftime('%Y-%m')
     file_fullname = EXCEL_PATH + '/record/' + file_name
