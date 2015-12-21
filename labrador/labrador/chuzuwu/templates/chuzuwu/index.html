@@ -1,16 +1,95 @@
 {% extends "base.html" %}
+{% load handler %}
 
 {% block main %}
 <div class="row J_mainContent" id="content-main">
   <div class="wrapper wrapper-content gray-bg">
-    <div class="middle-box text-center animated fadeInDown">
-      <h2>欢迎使用</h2>
+    <div class="row">
+      <div class="col-sm-3">
+        <div class="ibox float-e-margins">
+          <a href="{% url 'money' %}" style="color: inherit;">
+          <div class="ibox-title">
+            <span class="label label-success pull-right">{{ cur_period.period|date:"M" }}</span>
+            <h5>收入</h5>
+          </div>
+          <div class="ibox-content">
+            <h1 class="no-margins">{{ record_count.total|interger }}</h1>
+            <!-- <div class="stat-percent font-bold text-success">98% <i class="fa fa-bolt"></i>
+            </div> -->
+            <small>总收入</small>
+          </div>
+          </a>
+        </div>
+      </div>
+      <div class="col-sm-3">
+        <div class="ibox float-e-margins">
+          <a href="{% url 'room_record' %}" style="color: inherit;">
+          <div class="ibox-title">
+            <span class="label label-info pull-right">{{ cur_period.period|date:"M" }}</span>
+            <h5>入住人数</h5>
+          </div>
+          <div class="ibox-content">
+            <h1 class="no-margins">{{ enter_count }}</h1>
+            <!-- <div class="stat-percent font-bold text-info">20% <i class="fa fa-level-up"></i>
+            </div> -->
+            <small>新租客</small>
+          </div>
+          </a>
+        </div>
+      </div>
+      <div class="col-sm-3">
+        <div class="ibox float-e-margins">
+          <a href="{% url 'room_record' %}" style="color: inherit;">
+          <div class="ibox-title">
+            <span class="label label-primary pull-right">{{ cur_period.period|date:"M" }}</span>
+            <h5>退租人数</h5>
+          </div>
+          <div class="ibox-content">
+            <h1 class="no-margins">{{ leave_count }}</h1>
+            <!-- <div class="stat-percent font-bold text-navy">44% <i class="fa fa-level-up"></i>
+            </div> -->
+            <small>旧访客</small>
+          </div>
+          </a>
+        </div>
+      </div>
+      <div class="col-sm-3">
+        <div class="ibox float-e-margins">
+          <a href="{% url 'room' %}" style="color: inherit;">
+          <div class="ibox-title">
+            <span class="label label-danger pull-right">Now</span>
+            <h5>未出租的房间数</h5>
+          </div>
+          <div class="ibox-content">
+            <h1 class="no-margins">{{ empty_room_count }}</h1>
+            <!-- <div class="stat-percent font-bold text-danger">38% <i class="fa fa-level-down"></i>
+            </div> -->
+            <small>未出租</small>
+          </div>
+          </a>
+        </div>
+      </div>
+    </div>
 
-      <div class="error-desc">
-        <p>出租屋信息管理系统，这个首页只是暂时安排，最终会显示常看的信息</p>
-        <p>
-          <a href="{% url 'money' %}" class="btn btn-block btn-outline btn-primary">进入查看帐单</a>
-        </p>
+    <div class="ibox-content m-b-sm border-bottom">
+      <div class="p-xs">
+        <div class="pull-left m-r-md">
+            <i class="fa fa-globe text-navy mid-icon"></i>
+        </div>
+        <h2>系统使用说明</h2>
+        <p>当每月来单据的时候，需要分开哪些是新入住，哪些是退租的。</p>
+        <p>如果有退租的房间，首先在“房间管理->房间”点击对应房间退租按钮，然后会提示你交还什么，退定金多少等。</p>
+        <p>然后就是登记入住，现在"租客管理->添加租客"里登记租客信息，然后在"房间管理->添加入住记录"那里添加新的入住记录。</p>
+        <p>最重要的一个就是登记每月的账单，添加的时候，按照房间101开始，添加完一条记录，保存内容后，会继续是添加记录页面，接着是102，103，104...直到所有房间的信息都导入了为止。</p>
+        <p>如果当月同一房间有退房和入住的，有需要可以对同一个房间的记录进行更新处理。</p>
+        <p>基本操作就是这些，如有疑问，请找管理员：lijunjie</p>
+        <p>TODO:</p>
+        <ul>
+          <li>统计每个月的总收入</li>
+          <li>优化输入流程，简化流程</li>
+          <li>添加账单优化选择记录期</li>
+          <li>统计住满一年的租客</li>
+        </ul>
       </div>
     </div>
   </div>

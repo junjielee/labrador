@@ -55,7 +55,30 @@ from .utils import (
 
 @login_required
 def index(request):
-    return render(request, 'chuzuwu/index.html')
+    period = Period.objects.filter().order_by('-period')[0]
+    records = Record.objects.filter(period=period).order_by('room__number')\
+        .select_related('room', 'period')
+    record_count = get_monthly_statistics(records)
+    context = RequestContext(request, {
+        'cur_period': period,
+        'record_count': record_count,
+    })
+
+    # 统计新入住和退租的人数
+    room_records = RoomRecord.objects.filter(period=period).order_by('room__number')\
+        .select_related('room', 'period')
+    enter_count = 0
+    for room_record in room_records:
+        if not room_record.is_finish():
+            enter_count += 1
+    context.update({'enter_count': enter_count})
+    context.update({'leave_count': len(room_records) - enter_count})
+
+    # 统计未出租的房间数
+    empty_room_count = Room.objects.filter(status='E').count()
+    context.update({'empty_room_count': empty_room_count})
+    return render_to_response('chuzuwu/index.html',
+                              context_instance=context)
 
 
 @login_required
