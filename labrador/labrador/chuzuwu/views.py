@@ -561,7 +561,7 @@ def upload_record(request):
             room_number = int(sheet.row_values(rownum)[0])
             room, created = Room.objects.get_or_create(number=room_number,
                                                        house=house)
-            record = Record(period=period, room=room)
+            record, created = Record.objects.get_or_create(period=period, room=room)
             # TODO 判断是否数字
             if sheet.row_values(rownum)[1] != '':
                 record.rent_fee = int(sheet.row_values(rownum)[1])
@@ -575,6 +575,8 @@ def upload_record(request):
                 record.total_fee = float(sheet.row_values(rownum)[5])
             record.remark = sheet.row_values(rownum)[6]
             record.save()
+            if room_number == 412:
+                break
         messages.success(request, '导入成功')
     context = RequestContext(request, {})
     return render_to_response('chuzuwu/upload-record.html',
