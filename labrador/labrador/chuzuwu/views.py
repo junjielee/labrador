@@ -396,6 +396,9 @@ def room_record_add(request):
             tenant_id = int(tenant_id)
         tenant = Tenant.objects.get(id=tenant_id)
         room = Room.objects.get(id=room_id)
+        if room.status == 'L':
+            messages.error(request, '%s房有人入住，请先退房' % room.number)
+            return redirect(reverse('room_record'))
         room.status = 'L'
         room.tenant = tenant
         # room.rent = int(datas.get('rent'))
