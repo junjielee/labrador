@@ -30,7 +30,7 @@ class RoomAdmin(admin.ModelAdmin):
 
 
 class RecordAdmin(admin.ModelAdmin):
-    list_display = ['room', 'total_fee']
+    list_display = ['room', 'total_fee', 'period']
 
 
 class RoomRecordAdmin(admin.ModelAdmin):
