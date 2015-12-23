@@ -67,7 +67,7 @@
                       <a href="{% url 'room_record' %}?period_id={{ previous_period.id }}">上一月</a>
                     </li>
                     {% endif %}
-                    <li class="paginate_button " aria-controls="DataTables_Table_0" tabindex="0"><a href="#">日历选择</a></li>
+                    <!-- <li class="paginate_button " aria-controls="DataTables_Table_0" tabindex="0"><a href="#">日历选择</a></li> -->
                     {% if next_period %}
                     <li class="paginate_button next" aria-controls="DataTables_Table_0" tabindex="0" id="DataTables_Table_0_next">
                       <a href="{% url 'room_record' %}?period_id={{ next_period.id }}">下一月</a>

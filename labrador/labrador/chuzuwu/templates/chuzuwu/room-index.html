@@ -35,9 +35,9 @@
                   <td class="center">{{ room.rent|to_blank }}</td>
                   <td class="center">
                     {% if room.status == 'L' %}
-                    <span class="label label-primary">{{ room.status|to_room_status }}</span>
+                    <span class="label label-success">{{ room.status|to_room_status }}</span>
                     {% else %}
-                      {{ room.status|to_room_status }}  
+                      <span class="label label-primary">{{ room.status|to_room_status }}</span>
                     {% endif %}
                   </td>
                   <td class="center">

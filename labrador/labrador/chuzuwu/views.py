@@ -370,7 +370,7 @@ def room_record(request):
         previous_period = get_last_period(period)
         next_period = get_next_period(period)
     room_records = RoomRecord.objects.filter(period=period)\
-        .order_by('-period', 'room__number').select_related('room', 'period')
+        .order_by('room__number', '-move_in_date').select_related('room', 'period')
     context = RequestContext(request, {
         'room_records': room_records,
         'cur_period': period,
@@ -624,6 +624,7 @@ def leave_room(request, rid):
                 return_data.update(RETURN_MSG['success'])
                 return_data.update({'tasks': tasks})
     room.status = 'E'
+    room.tenant = None
     room.save()
     return HttpResponse(json.dumps(return_data),
                         content_type="application/json")
@@ -634,21 +635,21 @@ def enter_room(request, rid):
     # 暂时没用
     room = get_object_or_404(Room, pk=int(rid))
     return_data = {'room_number': room.number}
+    datas = json.loads(request.POST['datas'])
+    tenant_id = int(datas['tenant_id'])
+    tenant, created = get_object_or_404(Tenant, pk=tenant_id)
     if room.status == 'L':
         return_data.update(RETURN_MSG['room_lived'])
         return HttpResponse(json.dumps(return_data, separator=(',', ':')),
                                        content_type="application/json")
     else:
-        datas = json.loads(request.POST['datas'])
         period_id = int(datas['period_id'])
-        tenant_id = int(datas['tenant_id'])
         # rent 从room获取
         room_deposit = int(datas['room_deposit'])
         promise_deposit = int(datas['promise_deposit'])
         tv_deposit = int(datas['tv_deposit'])
         remark = int(datas['remark'])
         period, created = get_object_or_404(Period, pk=period_id)
-        tenant, created = get_object_or_404(Tenant, pk=tenant_id)
         room_record = RoomRecord.objects.create(
             room=room,
             period=period,
@@ -662,6 +663,7 @@ def enter_room(request, rid):
         )
         return_data.update(RETURN_MSG['success'])
     room.status = 'L'
+    room.tenant = tenant
     room.save()
     return HttpResponse(json.dumps(return_data, separator=(',', ':')),
                                    content_type="application/json")
