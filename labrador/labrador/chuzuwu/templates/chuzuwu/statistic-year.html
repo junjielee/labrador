@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div class="row J_mainContent" id="content-main">
+  <div class="wrapper wrapper-content animated fadeInRight gray-bg">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="ibox float-e-margins">
+          <div class="ibox-title">
+            <h2>{{ cur_year }}年收入趋势</h2>
+          </div>
+          <div class="ibox-content">
+            <div id="statistic-year" style="height:480px"></div>
+            <div class="row">
+              <div class="col-sm-3">
+              </div>
+              <div class="col-sm-3">
+              </div>
+              <div class="col-sm-6">
+                <div class="dataTables_paginate paging_simple_numbers" style="float: right;">
+                  <ul class="pagination">
+                    <li class="paginate_button previous" aria-controls="DataTables_Table_0" tabindex="0" id="DataTables_Table_0_previous">
+                      <a href="{% url 'statistic_year' %}?year={{ pre_year }}">上一年</a>
+                    </li>
+                    <li class="paginate_button next" aria-controls="DataTables_Table_0" tabindex="0" id="DataTables_Table_0_next">
+                      <a href="{% url 'statistic_year' %}?year={{ next_year }}">下一年</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<code id="result" class="hide">{{ result }}</code>
+{% endblock main %}
+
+{% block javascript %}
+{{ block.super }}
+<!-- ECharts单文件引入 -->
+<script src="http://echarts.baidu.com/build/dist/echarts.js"></script>
+<script type="text/javascript">
+  // 路径配置
+  require.config({
+    paths: {
+      echarts: 'http://echarts.baidu.com/build/dist'
+    }
+  });
+  // 使用
+  var result = JSON.parse(document.getElementById('result').innerText)['result'];
+  require(
+    [
+      'echarts',
+      'echarts/chart/bar' // 使用柱状图就加载bar模块，按需加载
+    ],
+    function (ec) {
+      // 基于准备好的dom，初始化echarts图表
+      var myChart = ec.init(document.getElementById('statistic-year')); 
+      
+      var option = {
+          tooltip: {
+              show: true
+          },
+          legend: {
+              data:['总收入']
+          },
+          xAxis : [
+              {
+                  type : 'category',
+                  data : ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"]
+              }
+          ],
+          yAxis : [
+              {
+                  type : 'value'
+              }
+          ],
+          series : [
+              {
+                  "name":"总收入",
+                  "type":"bar",
+                  "data":result
+              }
+          ]
+      };
+
+      // 为echarts对象加载数据 
+      myChart.setOption(option); 
+  }
+  );
+</script>
+{% endblock javascript %}

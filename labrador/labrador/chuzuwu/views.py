@@ -476,6 +476,34 @@ def room_record_update(request, rid):
 
 
 @login_required
+def statistic_year(request):
+    cur_year = int(request.GET.get('year', '0'))
+    if cur_year == 0:
+        cur_year = module_date.today().year
+    periods = Period.objects.filter(period__year=cur_year).order_by('period')
+    result = {}
+    result_list = []
+    for period in periods:
+        records = Record.objects.filter(period=period).order_by('room__number')\
+            .select_related('room', 'period')
+        record_count = get_monthly_statistics(records)
+        result[str(period.period.month)] = record_count['total']
+    for month in range(1, 13):
+        if str(month) in result:
+            result_list.append(result[str(month)])
+        else:
+            result_list.append(0)
+    context = RequestContext(request, {
+        'result': json.dumps({'result': result_list}),
+        'cur_year': cur_year,
+        'pre_year': cur_year - 1,
+        'next_year': cur_year + 1,
+    })
+    return render_to_response('chuzuwu/statistic-year.html',
+                              context_instance=context)
+
+
+@login_required
 def download_record(request, pid):
     pid = int(pid)
     period = Period.objects.get(id=pid)
