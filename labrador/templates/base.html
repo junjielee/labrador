@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="{% static 'plugins/datapicker/datepicker3.css' %}">
   <link rel="stylesheet" href="{% static 'plugins/toastr/toastr.min.css' %}">
   <link rel="stylesheet" href="{% static 'plugins/sweetalert/sweetalert.css' %}">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/css/select2.min.css" rel="stylesheet" />
   <style>
   .text-center {
     text-align: center;
@@ -65,8 +66,11 @@
   <script src="{% static 'plugins/sweetalert/sweetalert.min.js' %}"></script>
 
   <script src="{% static 'js/full.js' %}"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/js/select2.min.js"></script>
   <script>
   jQuery(document).ready(function() {
+    // select2初始化
+    $(".js-example-basic-single").select2();
     // toastr初始化开始
     toastr.options = {
        "closeButton": true,

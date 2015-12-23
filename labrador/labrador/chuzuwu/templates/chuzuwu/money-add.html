@@ -21,7 +21,8 @@
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="id_room">{{ record_form.room.label }}</label>
                 <div class="col-sm-10">
-                  <select id="id_room" class="form-control" name="room">
+                  <!-- <select id="id_room" class="form-control" name="room"> -->
+                  <select class="js-example-basic-single form-control" id="id_room" name="room">
                     {% for room in room_options %}
                     <option value="{{ room.id }}" {% if room == cur_room %}selected{% endif %}>{{ room.number }}</option>
                     {% empty %}
@@ -32,7 +33,7 @@
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="id_period">{{ record_form.period.label }}</label>
                 <div class="col-sm-10">
-                  <select id="id_period" class="form-control" name="period">
+                  <select id="id_period" class="js-example-basic-single form-control" name="period">
                     {% for period in period_options %}
                     <option value="{{ period.id }}">{{ period }}</option>
                     {% empty %}
