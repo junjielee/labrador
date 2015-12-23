@@ -447,7 +447,9 @@ def room_record_update(request, rid):
             room.status = 'E'
             room.tenant = None
         else:
+            room.status = 'L'
             room.tenant = tenant
+        # 修改入住记录的租金，对应房间的租金也会修改
         room.rent = int(datas.get('rent'))
         room.save()
 
