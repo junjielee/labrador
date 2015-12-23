@@ -114,6 +114,8 @@ def money_index(request):
         next_period = get_next_period(period)
     records = Record.objects.filter(period=period).order_by('room__number')\
         .select_related('room', 'period')
+    if records.count() == 0:
+        messages.info(request, '当前记录期没有¥¥记录')
     record_count = get_monthly_statistics(records)
     context = RequestContext(request, {
         'records': records,
