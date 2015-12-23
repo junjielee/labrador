@@ -483,6 +483,13 @@ def download_record(request, pid):
         .select_related('room', 'period', 'tenant')
     workbook = xlwt.Workbook()
     sheet = workbook.add_sheet('sheet1')
+    # red style
+    red_style = xlwt.XFStyle()
+    pattern = xlwt.Pattern()
+    pattern.pattern = xlwt.Pattern.SOLID_PATTERN
+    pattern.pattern_fore_colour = xlwt.Style.colour_map['red']
+    red_style.pattern = pattern
+
     col_len = len(EXCEL_RECORD_COL)
     sheet.write_merge(0, 0, 0, col_len-1, unicode(period))
     for i in range(col_len):
@@ -524,7 +531,7 @@ def download_record(request, pid):
         sheet.write(x, 8, unicode(records[j].remark))
         if (j+1) % 12 == 0:
             number_total = record_count['total'] - record_count['last_total']
-            sheet.write(x, 9, number_total)
+            sheet.write(x, 9, number_total, red_style)
             record_count['last_total'] = record_count['total']
     # 写入最后一行统计信息
     rownum = len(records) + 2
@@ -536,7 +543,7 @@ def download_record(request, pid):
     sheet.write(rownum, 6, record_count['tv'])
     sheet.write(rownum, 7, record_count['total'])
     # sheet.write(rownum, 8, u'没给钱的有%s个' % record_count['num_no_money'])
-    sheet.write(rownum, 9, record_count['total'])
+    sheet.write(rownum, 9, record_count['total'], red_style)
     # 保存到本地
     file_name = '%s.xls' % period.period.strftime('%Y-%m')
     file_fullname = EXCEL_EXPORT_PATH + file_name
