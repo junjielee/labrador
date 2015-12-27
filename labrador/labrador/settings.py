@@ -130,3 +130,4 @@ RETURN_MSG = {
 
 if DEBUG:
     from labrador.conf.labrador_conf_dev import *
+from labrador.conf.logging_config import *

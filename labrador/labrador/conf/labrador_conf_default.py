@@ -14,3 +14,6 @@ DATABASES = {
         'PORT': '3306',
     }
 }
+
+# log
+LOGGING_FILE = ''

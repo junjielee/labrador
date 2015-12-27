@@ -4,6 +4,7 @@
 import xlrd
 import xlwt
 import json
+import logging
 from datetime import date as module_date
 
 from django.shortcuts import (
@@ -52,6 +53,8 @@ from .utils import (
     get_monthly_statistics,
     change_form_fee,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -212,7 +215,7 @@ def money_update(request, rid):
     try:
         record = Record.objects.get(id=rid)
     except Record.DoesNotExist:
-        print 'money update error, record not found'
+        logger.error('money update error, record not found')
     if request.method == 'POST':
         datas = request.POST.copy()
         datas = change_form_fee(datas)
@@ -278,7 +281,7 @@ def tenant_update(request, tid):
     try:
         tenant = Tenant.objects.get(id=tid)
     except Tenant.DoesNotExist:
-        print 'tenant not found'
+        logger.error('tenant not found')
     if request.method == 'POST':
         datas = request.POST
         form = TenantForm(datas, instance=tenant)
@@ -348,11 +351,10 @@ def room_update(request, rid):
     try:
         room = Room.objects.get(id=rid)
     except Room.DoesNotExist:
-        print 'room update error, room not found'
+        logger.error('room update error, room not found')
     if request.method == 'POST':
         datas = request.POST
         form = RoomForm(datas, instance=room)
-        print form
         if form.is_valid():
             form.save()
         else:
@@ -457,7 +459,7 @@ def room_record_update(request, rid):
     try:
         room_record = RoomRecord.objects.get(id=rid)
     except Record.DoesNotExist:
-        print 'error'
+        logger.error('room record not found')
     if request.method == 'POST':
         datas = request.POST
         # 设置房间状态
@@ -524,7 +526,6 @@ def statistic_year(request):
             result_list.append(result[str(month)])
         else:
             result_list.append(0)
-    print result_list
     context = RequestContext(request, {
         'result': json.dumps({'result': result_list}),
         'cur_year': cur_year,
