@@ -132,6 +132,7 @@ def money_index(request):
 def money_add(request):
     period_options = Period.objects.all().order_by('-period')
     room_options = Room.objects.all().order_by('number')
+    record_form = RecordForm()
     if request.method == 'POST':
         datas = request.POST.copy()
         room_id = datas.get('room')
@@ -164,19 +165,42 @@ def money_add(request):
                     .select_related('room').order_by('room__number')
                 if cur_period_records.count() == room_options.count():
                     return redirect(reverse('money'))
+                elif cur_period_records.count() < room_options.count():
+                    cur_period = Period.objects.get(id=int(period_id))
+                    end_rooms = [112, 212, 312]
+                    next_number = room.number + 1
+                    if room.number in end_rooms:
+                        next_number = (room.number / 100 + 1) * 100 + 1
+                    elif room.number == 412:
+                        next_number = 101
+                    try:
+                        cur_room = Room.objects.get(number=next_number)
+                    except Room.DoesNotExist:
+                        messages.error(request, '下月个房间获取不到数据，请联系管理员')
+                        return redirect(reverse('money_add'))
+                    context = RequestContext(request, {
+                        'record_form': record_form,
+                        'period_options': period_options,
+                        'room_options': room_options,
+                        'cur_period': cur_period,
+                        'cur_room': cur_room,
+                    })
+                    return render_to_response('chuzuwu/money-add.html',
+                                            context_instance=context)
                 else:
                     return redirect(reverse('money_add'))
         return redirect(reverse('money'))
 
-    record_form = RecordForm()
     # 获取当前周期还没输入的一个room
     cur_room = get_first_no_record_room(room_options, period_options)
+    cur_period = Period.objects.all().order_by('-period')[0]
 
     context = RequestContext(request, {
         'record_form': record_form,
         'period_options': period_options,
         'room_options': room_options,
         'cur_room': cur_room,
+        'cur_period': cur_period,
     })
     return render_to_response('chuzuwu/money-add.html',
                               context_instance=context)
