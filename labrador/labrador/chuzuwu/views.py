@@ -425,15 +425,16 @@ def room_record_add(request):
         if room.status == 'L':
             messages.error(request, '%s房有人入住，请先退房' % room.number)
             return redirect(reverse('room_record'))
-        room.status = 'L'
-        room.tenant = tenant
-        # room.rent = int(datas.get('rent'))
-        room.save()
 
         datas.setlist('rent', [unicode(room.rent)])
         form = RoomRecordForm(datas)
         if form.is_valid():
             form.save()
+            # 对应房间状态修改
+            room.status = 'L'
+            room.tenant = tenant
+            # room.rent = int(datas.get('rent'))
+            room.save()
         else:
             messages.error(request, '添加不成功')
         return redirect(reverse('room_record'))
