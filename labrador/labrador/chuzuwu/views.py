@@ -12,6 +12,7 @@ from django.shortcuts import (
     RequestContext,
     redirect,
 )
+from django.db.models import Sum
 from django.contrib.auth.decorators import login_required
 from django.http import StreamingHttpResponse, HttpResponse
 from django.core.urlresolvers import reverse
@@ -505,19 +506,25 @@ def statistic_year(request):
     cur_year = int(request.GET.get('year', '0'))
     if cur_year == 0:
         cur_year = module_date.today().year
-    periods = Period.objects.filter(period__year=cur_year).order_by('period')
+    # periods = Period.objects.filter(period__year=cur_year).order_by('period')
     result = {}
     result_list = []
-    for period in periods:
-        records = Record.objects.filter(period=period).order_by('room__number')\
-            .select_related('room', 'period')
-        record_count = get_monthly_statistics(records)
-        result[str(period.period.month)] = record_count['total']
+    total_sums = Record.objects.filter(period__period__year=cur_year)\
+        .order_by('period__period').values('period__period')\
+        .annotate(total_sum=Sum('total_fee'))
+    for total in total_sums:
+        result[str(total['period__period'].month)] = total['total_sum']
+    # for period in periods:
+    #     records = Record.objects.filter(period=period).order_by('room__number')\
+    #         .select_related('room', 'period')
+    #     record_count = get_monthly_statistics(records)
+    #     result[str(period.period.month)] = record_count['total']
     for month in range(1, 13):
         if str(month) in result:
             result_list.append(result[str(month)])
         else:
             result_list.append(0)
+    print result_list
     context = RequestContext(request, {
         'result': json.dumps({'result': result_list}),
         'cur_year': cur_year,
