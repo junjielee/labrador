@@ -89,17 +89,17 @@ def index(request):
 def money_index(request):
     # 取最近的一个记录日期
     period_id = int(request.GET.get('period_id', '0'))
-    if request.method == 'POST':
-        date_str = request.POST.get('search_date')
-        year = int(date_str.split('-')[0])
-        month = int(date_str.split('-')[1])
-        cur_date = module_date(year, month, 1)
-        try:
-            period = Period.objects.get(period=cur_date)
-        except Period.DoesNotExist:
-            period_id = 0
-        else:
-            period_id = period.id
+    # if request.method == 'POST':
+    #     date_str = request.POST.get('search_date')
+    #     year = int(date_str.split('-')[0])
+    #     month = int(date_str.split('-')[1])
+    #     cur_date = module_date(year, month, 1)
+    #     try:
+    #         period = Period.objects.get(period=cur_date)
+    #     except Period.DoesNotExist:
+    #         period_id = 0
+    #     else:
+    #         period_id = period.id
 
     if period_id == 0:
         try:
@@ -121,10 +121,12 @@ def money_index(request):
     if records.count() == 0:
         messages.info(request, '当前记录期没有¥¥记录')
     record_count = get_monthly_statistics(records)
+    all_periods = Period.objects.all().order_by('-period')
     context = RequestContext(request, {
         'records': records,
         'record_count': record_count,
         'cur_period': period,
+        'all_periods': all_periods,
         'previous_period': previous_period,
         'next_period': next_period,
     })
@@ -168,7 +170,7 @@ def money_add(request):
                 cur_period_records = Record.objects.filter(period_id=period_id)\
                     .select_related('room').order_by('room__number')
                 if cur_period_records.count() == room_options.count():
-                    return redirect(reverse('money'))
+                    return redirect(reverse('money') + '?period_id=' + period_id)
                 elif cur_period_records.count() < room_options.count():
                     cur_period = Period.objects.get(id=int(period_id))
                     end_rooms = [112, 212, 312]

@@ -78,11 +78,13 @@
                 {% endif %}
               </div>
               <div class="col-sm-3">
-                <form method="post">
-                  {% csrf_token %}
-                  <input id="id_search_date" name="search_date" type="text" placeholder="选择日期" class="form-control" style="width: 10em;">
-                  <button class="btn btn-primary" type="submit" style="margin-top: 0.3em;">搜索</button>
-                </form>
+                <select class="js-example-basic-single form-control" id="money-period">
+                  <option value="0">选择考核期</option>
+                  {% for period in all_periods %}
+                  <option value="{{ period.id }}">{{ period.period|date:"Y-m" }}</option>
+                  {% empty %}
+                  {% endfor %}
+                </select>
               </div>
               <div class="col-sm-6">
                 <div class="dataTables_paginate paging_simple_numbers" style="float: right;">
@@ -92,7 +94,6 @@
                       <a href="{% url 'money' %}?period_id={{ previous_period.id }}">上一月</a>
                     </li>
                     {% endif %}
-                    <!-- <li class="paginate_button " aria-controls="DataTables_Table_0" tabindex="0"><a href="#">日历选择</a></li> -->
                     {% if next_period %}
                     <li class="paginate_button next" aria-controls="DataTables_Table_0" tabindex="0" id="DataTables_Table_0_next">
                       <a href="{% url 'money' %}?period_id={{ next_period.id }}">下一月</a>

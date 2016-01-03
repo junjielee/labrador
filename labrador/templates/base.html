@@ -133,6 +133,13 @@
       }else if(no_ul_link.length > 0){
         no_ul_link.css('color', '#19aa8d');
       }
+
+      // money-index，日期搜索
+      $('#money-period').change(function(event) {
+        var url = "{% url 'money' %}";
+        var period_id = $(this).val();
+        window.location = url + "?period_id=" + period_id;
+      });
     });
   </script>
   {% endblock javascript %}
