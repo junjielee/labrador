@@ -149,16 +149,24 @@ def money_add(request):
             messages.info(request, '%s房间还没入住记录,请先添加入住记录' % room.number)
             return redirect('room_record_add')
         datas.setlist('tenant', [unicode(tenant.id)])
-        datas.setlist('rent_fee', [unicode(room.rent)])
+        # 租金从输入中获取，不从房间获取
+        # datas.setlist('rent_fee', [unicode(room.rent)])
         datas = change_form_fee(datas)
         period_id = datas.get('period')
+        total_fee = calculate_total_fee(datas)
         if tenant:
             try:
                 record = Record.objects.get(room_id=int(room_id),
-                                            period_id=int(period_id),
-                                            tenant=tenant)
+                                            period_id=int(period_id))
+                record.rent_fee += int(datas.get('rent_fee'))
+                record.electric_fee += float(datas.get('electric_fee'))
+                record.internet_fee += int(datas.get('internet_fee'))
+                record.charge_fee += int(datas.get('charge_fee'))
+                record.tv_fee += int(datas.get('tv_fee'))
+                record.total_fee += total_fee
+                record.remark += u"，" + unicode(datas.get('remark'))
+                record.save()
             except Record.DoesNotExist:
-                total_fee = calculate_total_fee(datas)
                 datas.setlist('total_fee', [unicode(total_fee)])
                 form = RecordForm(datas)
                 if form.is_valid():
@@ -167,6 +175,7 @@ def money_add(request):
                 messages.info(request, '%s入住的房间%s，这个月已经有记录了' %
                     (tenant.name, room.number))
             finally:
+                # 准备下一房的信息输入
                 cur_period_records = Record.objects.filter(period_id=period_id)\
                     .select_related('room').order_by('room__number')
                 if cur_period_records.count() == room_options.count():
