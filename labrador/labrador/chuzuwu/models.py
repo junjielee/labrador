@@ -151,5 +151,6 @@ class Record(TimeModel):
         return u'%s-￥%s' % (self.room, self.total_fee)
 
     class Meta:
+        unique_together = ("room", "period", "tenant")
         verbose_name = _('Record')
         verbose_name_plural = _('Records')

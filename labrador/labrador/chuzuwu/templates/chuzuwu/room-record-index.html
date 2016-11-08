@@ -26,6 +26,7 @@
                   <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 86px;">定金</th>
                   <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 86px;">电视押金</th>
                   <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 86px;">搬入时间</th>
+                  <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 48px;">搬入/退租</th>
                   <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 160px;">备注</th>
                   <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1"  style="width: 66px;">操作</th>
                 </tr>
@@ -41,6 +42,13 @@
                   <td class="center">{{ record.promise_deposit|to_blank }}</td>
                   <td class="center">{{ record.tv_deposit|to_blank }}</td>
                   <td class="center">{{ record.move_in_date|date:"Y-m-d" }}</td>
+                  <td class="">
+                    {% if record.is_finish %}
+                    <span class="label label-danger">退租</span>
+                    {% else %}
+                      <span class="label label-success">搬入</span>
+                    {% endif %}
+                  </td>
                   <td class="center">{{ record.remark }}</td>
                   <td class="center">
                     <a class="btn btn-warning btn-xs" href="{% url 'room_record_update' rid=record.id %}" style="margin-bottom: 0px;">更新</a>
@@ -59,7 +67,7 @@
                       <a href="{% url 'room_record' %}?period_id={{ previous_period.id }}">上一月</a>
                     </li>
                     {% endif %}
-                    <li class="paginate_button " aria-controls="DataTables_Table_0" tabindex="0"><a href="#">日历选择</a></li>
+                    <!-- <li class="paginate_button " aria-controls="DataTables_Table_0" tabindex="0"><a href="#">日历选择</a></li> -->
                     {% if next_period %}
                     <li class="paginate_button next" aria-controls="DataTables_Table_0" tabindex="0" id="DataTables_Table_0_next">
                       <a href="{% url 'room_record' %}?period_id={{ next_period.id }}">下一月</a>

@@ -18,7 +18,7 @@
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="id_room">{{ record_form.room.label }}</label>
                 <div class="col-sm-10">
-                  <select id="id_room" class="form-control" name="room">
+                  <select id="id_room" class="js-example-basic-single form-control" name="room">
                     {% for room in room_options %}
                     <option value="{{ room.id }}">{{ room.number }}</option>
                     {% empty %}
@@ -29,7 +29,7 @@
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="id_period">{{ record_form.period.label }}</label>
                 <div class="col-sm-10">
-                  <select id="id_period" class="form-control" name="period">
+                  <select id="id_period" class="js-example-basic-single form-control" name="period">
                     {% for period in period_options %}
                     <option value="{{ period.id }}">{{ period }}</option>
                     {% empty %}
@@ -40,7 +40,7 @@
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="id_tenant">{{ record_form.tenant.label }}</label>
                 <div class="col-sm-10">
-                  <select id="id_tenant" class="form-control" name="tenant">
+                  <select id="id_tenant" class="js-example-basic-single form-control" name="tenant">
                     {% for tenant in tenant_options %}
                     <option value="{{ tenant.id }}">{{ tenant }}</option>
                     {% empty %}
