@@ -79,7 +79,7 @@
               </div>
               <div class="col-sm-3">
                 <select class="js-example-basic-single form-control" id="money-period">
-                  <option value="0">选择考核期</option>
+                  <option value="0">选择记录周期</option>
                   {% for period in all_periods %}
                   <option value="{{ period.id }}">{{ period.period|date:"Y-m" }}</option>
                   {% empty %}

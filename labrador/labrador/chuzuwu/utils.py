@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 
 from .models import (
     Record,
@@ -14,9 +13,10 @@ from ..settings import (
 
 
 def get_first_no_record_room(all_rooms, all_periods):
-    """
-        默认去最近的日期的一个为当前日期, 返回当前还没输入记录的room，
-        如果都输入了，就返回number第一个的room
+    """获取第一个没有入住记录的房
+
+    默认去最近的日期的一个为当前日期, 返回当前还没输入记录的room，
+    如果都输入了，就返回number第一个的room
     """
     cur_period = all_periods[0]
     cur_room = all_rooms[0]
@@ -30,16 +30,19 @@ def get_first_no_record_room(all_rooms, all_periods):
 
 
 def get_last_period(period):
+    """获取上一个记录时期
+
+    :return: 上一个period, 找不到则返回None
+    :type return: Period
     """
-        获取上一个记录时期
-    """
+
     cur_month = period.period.month
     last_year = period.period.year
     last_month = cur_month - 1
     if last_month == 0:
         last_year -= 1
         last_month = 12
-    # 先简单处理错误,找不到返回None
+
     try:
         last_period = Period.objects.get(period__year=last_year,
                                          period__month=last_month)
@@ -49,9 +52,12 @@ def get_last_period(period):
 
 
 def get_next_period(period):
+    """获取下一个记录时期
+
+    :return: 下一个period, 找不到则返回None
+    :type return: Period
     """
-        获取下一个记录时期
-    """
+
     cur_month = period.period.month
     next_year = period.period.year
     next_month = cur_month + 1
@@ -67,23 +73,26 @@ def get_next_period(period):
 
 
 def calculate_electric_fee(cur_electricity, last_electricity, per_fee):
-    # 加上判断这个月份的电度数是否少于上月分
+    """计算电费"""
+
+    # TODO加上判断这个月份的电度数是否少于上月分
     electric_fee = (cur_electricity - last_electricity) * per_fee
 
     return electric_fee
 
 
 def calculate_water_fee(cur_water, last_water, per_fee):
-    # 加上判断这个月份的水度数是否少于上月分
+    """计算水费"""
+
+    # TODO加上判断这个月份的水度数是否少于上月分
     water_fee = (cur_water - last_water) * per_fee
 
     return water_fee
 
 
 def calculate_total_fee(datas):
-    """
-        计算total_fee的值
-    """
+    """计算total_fee的值"""
+
     total_fee = (
         int(datas.get('rent_fee')) +
         float(datas.get('electric_fee')) +
@@ -94,19 +103,21 @@ def calculate_total_fee(datas):
     return total_fee
 
 
-def set_room_info(room, datas):
-    """
-        设置room的状态，信息等
-    """
-    return None
+# def set_room_info(room, datas):
+#     """设置room的状态，信息等"""
+
+#     return None
 
 
 def get_room_tenant(room):
+    """获取当前房间的租客
+
+    :type return: Tenant
     """
-        获取当前房间的租客,返回tenant对象
-    """
+
     if room.status == 'E':
         return None
+
     room_records = RoomRecord.objects.filter(room=room).order_by('-period')
     if room_records.count() > 0:
         return room_records[0].tenant
@@ -114,8 +125,9 @@ def get_room_tenant(room):
         return None
 
 
-# 用于下载文件,适应下载大小文件
 def file_iterator(file_name, chunk_size=512):
+    """用于下载文件,适应下载大小文件"""
+
     with open(file_name) as f:
         while True:
             c = f.read(chunk_size)
@@ -125,16 +137,18 @@ def file_iterator(file_name, chunk_size=512):
                 break
 
 
-# 处理上传文件
 def handle_upload_record_file(file, path):
+    """处理上传文件"""
+
     new_file = path + file.name
     with open(new_file, 'wb+') as f:
         for chunk in file.chunks():
             f.write(chunk)
 
 
-# 添加统计信息
 def get_monthly_statistics(records):
+    """获取每月统计信息"""
+
     record_count = {
         'number': u'合计',
         'rent': 0,
@@ -155,15 +169,17 @@ def get_monthly_statistics(records):
         record_count['total'] += record.total_fee
         if not record.is_get_money:
             record_count['num_no_money'] += 1
+
     record_count['remark'] = u'没给钱的有%s个' % record_count['num_no_money']
     return record_count
 
 
 def get_record_type(datas):
-    """
-        判断record类型：入住的收入，退房的收入，还是稳定每月的收入
-        args: datas是QueryDict类型
-        return: move_in, move_out, or monthly
+    """判断record类型：入住的收入，退房的收入，还是稳定每月的收入
+
+    :param datas: 请求表单中的数据
+    :type datas: QueryDict
+    :return: 字符串move_in, move_out, or monthly
     """
     if datas.get('electric_fee') == 0 and datas.get('rent_fee') != 0:
         return 'move_in'
@@ -174,10 +190,11 @@ def get_record_type(datas):
 
 
 def change_form_fee(datas):
-    """
-        改变form.POST中的网费，充电费，电视费，输入的是有还是没
-        args: datas是QueryDict类型
-        return: 修改为费用值的datas
+    """改变form.POST中的网费，充电费，电视费，输入的是有还是没
+
+    :param datas: 请求表单中的数据
+    :type datas: QueryDict
+    :return: 修改为费用值的datas
     """
     if datas.get('internet_fee'):
         datas.setlist('internet_fee', [unicode(INTERNET_FEE)])
