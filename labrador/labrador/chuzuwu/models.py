@@ -1,15 +1,17 @@
-#!/usr/bin/env python
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 
 from datetime import datetime, date
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
+#: 房间状态
 ROOM_STATUS=(
     ('L', _('Lived')),
     ('E', _('Empty'))
 )
+
+#: 租客性别
 GENDER_CHOICES = (
     ('M', _('Male')),
     ('F', _('Female')),
@@ -21,9 +23,16 @@ class TimeModel(models.Model):
                                     verbose_name=_('Add time'))
     update_time = models.DateTimeField(default=datetime.now(),
                                        verbose_name=_('Update time'))
+    # 数据库已经有一个timemodel的表在了，所以这个修改暂时不管
+    # class Meta:
+    #     abstract = True
 
 
 class Period(models.Model):
+    """记录周期
+
+    一般一个月收一次租
+    """
     period = models.DateField(default=date.today(),
                               unique=True,
                               verbose_name=_('Record period'))
@@ -37,6 +46,9 @@ class Period(models.Model):
 
 
 class House(models.Model):
+    """楼"""
+
+    #: 楼名字
     name = models.CharField(max_length=100,
                             verbose_name=_('House name'),
                             unique=True)
@@ -50,6 +62,8 @@ class House(models.Model):
 
 
 class Tenant(models.Model):
+    """租客"""
+
     name = models.CharField(max_length=100, verbose_name=_('Tenant name'))
     sex = models.CharField(max_length=1,
                            blank=True,
@@ -68,12 +82,15 @@ class Tenant(models.Model):
 
 
 class Room(models.Model):
+    """房间，出租单位"""
+
     number = models.IntegerField(unique=True, verbose_name=_('Room number'))
     house = models.ForeignKey(House, verbose_name=_('House'))
     status = models.CharField(max_length=1,
                               default=ROOM_STATUS[0][0],
                               choices=ROOM_STATUS,
                               verbose_name=_('Room status'))
+    #: 当前入住的租客
     tenant = models.ForeignKey(Tenant, blank=True, null=True, verbose_name=_('Tenant'))
     rent = models.IntegerField(blank=True, null=True, verbose_name=_('Room rent'))
 
@@ -86,6 +103,8 @@ class Room(models.Model):
 
 
 class RoomRecord(TimeModel):
+    """入住记录"""
+
     room = models.ForeignKey(Room, verbose_name=_('Room'))
     period = models.ForeignKey(Period, verbose_name=_('Period'))
     tenant = models.ForeignKey(Tenant, blank=True, null=True, verbose_name=_('Tenant'))
@@ -118,6 +137,8 @@ class RoomRecord(TimeModel):
 
 
 class Record(TimeModel):
+    """Money记录(账单记录)"""
+
     room = models.ForeignKey(Room, verbose_name=_('Room'))
     period = models.ForeignKey(Period, verbose_name=_('Period'))
     tenant = models.ForeignKey(Tenant, blank=True, null=True, verbose_name=_('Tenant'))

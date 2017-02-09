@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 
 import xlrd
 import xlwt
@@ -7,12 +6,7 @@ import json
 import logging
 from datetime import date as module_date
 
-from django.shortcuts import (
-    render,
-    render_to_response,
-    RequestContext,
-    redirect,
-)
+from django.shortcuts import render, redirect
 from django.db.models import Sum
 from django.contrib.auth.decorators import login_required
 from django.http import StreamingHttpResponse, HttpResponse
@@ -59,14 +53,18 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def index(request):
+    """首页显示最近一个月的基础统计：总收入，入住数，退租数以及空着的房间数"""
+
     period = Period.objects.filter().order_by('-period')[0]
     records = Record.objects.filter(period=period).order_by('room__number')\
         .select_related('room', 'period')
     record_count = get_monthly_statistics(records)
-    context = RequestContext(request, {
+
+    #: 渲染页面的上下文
+    context = {
         'cur_period': period,
         'record_count': record_count,
-    })
+    }
 
     # 统计新入住和退租的人数
     room_records = RoomRecord.objects.filter(period=period).order_by('room__number')\
@@ -75,31 +73,23 @@ def index(request):
     for room_record in room_records:
         if not room_record.is_finish():
             enter_count += 1
+
     context.update({'enter_count': enter_count})
     context.update({'leave_count': len(room_records) - enter_count})
 
     # 统计未出租的房间数
     empty_room_count = Room.objects.filter(status='E').count()
     context.update({'empty_room_count': empty_room_count})
-    return render_to_response('chuzuwu/index.html',
-                              context_instance=context)
+
+    return render(request, 'chuzuwu/index.html', context=context)
 
 
 @login_required
 def money_index(request):
-    # 取最近的一个记录日期
+    """费用管理->账单，默认显示最近一个月的账单"""
+
+    #: 支持根据周期搜索
     period_id = int(request.GET.get('period_id', '0'))
-    # if request.method == 'POST':
-    #     date_str = request.POST.get('search_date')
-    #     year = int(date_str.split('-')[0])
-    #     month = int(date_str.split('-')[1])
-    #     cur_date = module_date(year, month, 1)
-    #     try:
-    #         period = Period.objects.get(period=cur_date)
-    #     except Period.DoesNotExist:
-    #         period_id = 0
-    #     else:
-    #         period_id = period.id
 
     if period_id == 0:
         try:
@@ -119,26 +109,34 @@ def money_index(request):
     records = Record.objects.filter(period=period).order_by('room__number')\
         .select_related('room', 'period')
     if records.count() == 0:
-        messages.info(request, '当前记录期没有¥¥记录')
+        messages.info(request, u'当前记录期没有¥¥记录')
     record_count = get_monthly_statistics(records)
     all_periods = Period.objects.all().order_by('-period')
-    context = RequestContext(request, {
+
+    context = {
         'records': records,
         'record_count': record_count,
         'cur_period': period,
         'all_periods': all_periods,
         'previous_period': previous_period,
         'next_period': next_period,
-    })
-    return render_to_response('chuzuwu/money-index.html',
-                              context_instance=context)
+    }
+    return render(request, 'chuzuwu/money-index.html', context=context)
 
 
 @login_required
 def money_add(request):
+    """费用管理->添加money"""
+
     period_options = Period.objects.all().order_by('-period')
     room_options = Room.objects.all().order_by('number')
     record_form = RecordForm()
+    context = {
+        'period_options': period_options,
+        'room_options': room_options,
+        'record_form': record_form,
+    }
+
     if request.method == 'POST':
         datas = request.POST.copy()
         room_id = datas.get('room')
@@ -146,7 +144,7 @@ def money_add(request):
             room = Room.objects.get(id=int(room_id))
         tenant = get_room_tenant(room)
         if tenant is None:
-            messages.info(request, '%s房间还没入住记录,请先添加入住记录' % room.number)
+            messages.info(request, u'%s房间还没入住记录,请先添加入住记录' % room.number)
             return redirect('room_record_add')
         datas.setlist('tenant', [unicode(tenant.id)])
         # 租金从输入中获取，不从房间获取
@@ -172,8 +170,8 @@ def money_add(request):
                 if form.is_valid():
                     form.save()
             else:
-                messages.info(request, '%s入住的房间%s，这个月已经有记录了' %
-                    (tenant.name, room.number))
+                messages.info(request, u'%s入住的房间%s，这个月已经有记录了' % (
+                    tenant.name, room.number))
             finally:
                 # 准备下一房的信息输入
                 cur_period_records = Record.objects.filter(period_id=period_id)\
@@ -191,17 +189,13 @@ def money_add(request):
                     try:
                         cur_room = Room.objects.get(number=next_number)
                     except Room.DoesNotExist:
-                        messages.error(request, '下月个房间获取不到数据，请联系管理员')
+                        messages.error(request, u'下月个房间获取不到数据，请联系管理员')
                         return redirect(reverse('money_add'))
-                    context = RequestContext(request, {
-                        'record_form': record_form,
-                        'period_options': period_options,
-                        'room_options': room_options,
+                    context.update({
                         'cur_period': cur_period,
                         'cur_room': cur_room,
                     })
-                    return render_to_response('chuzuwu/money-add.html',
-                                            context_instance=context)
+                    return render(request, 'chuzuwu/money-add.html', context=context)
                 else:
                     return redirect(reverse('money_add'))
         return redirect(reverse('money'))
@@ -210,15 +204,11 @@ def money_add(request):
     cur_room = get_first_no_record_room(room_options, period_options)
     cur_period = Period.objects.all().order_by('-period')[0]
 
-    context = RequestContext(request, {
-        'record_form': record_form,
-        'period_options': period_options,
-        'room_options': room_options,
+    context.udpate({
         'cur_room': cur_room,
         'cur_period': cur_period,
     })
-    return render_to_response('chuzuwu/money-add.html',
-                              context_instance=context)
+    return render(request, 'chuzuwu/money-add.html', context=context)
 
 
 @login_required
@@ -237,41 +227,44 @@ def money_update(request, rid):
         if form.is_valid():
             form.save()
         else:
-            messages.error(request, '更新失败，请检查输入')
+            messages.error(request, u'更新失败，请检查输入')
         return redirect(reverse('money'))
 
     record_form = RecordForm()
     period_options = Period.objects.all().order_by('-period')
     tenant_options = Tenant.objects.all()
-    context = RequestContext(request, {
+    context = {
         'record': record,
         'record_form': record_form,
         'period_options': period_options,
         'tenant_options': tenant_options,
-    })
-    return render_to_response('chuzuwu/money-update.html',
-                              context_instance=context)
+    }
+    return render(request, 'chuzuwu/money-update.html', context=context)
 
 
 @login_required
 def tenant_index(request):
+    """租客管理->租客"""
+
     tenants = Tenant.objects.all()
-    context = RequestContext(request, {
+    context = {
         'tenants': tenants,
-    })
-    return render_to_response('chuzuwu/tenant-index.html',
-                              context_instance=context)
+    }
+    return render(request, 'chuzuwu/tenant-index.html', context=context)
 
 
 @login_required
 def tenant_add(request):
+    """租客管理->添加租客"""
+
     if request.method == 'POST':
         form = TenantForm(request.POST)
         if form.is_valid():
             form.save()
         else:
-            messages.error(request, '租客添加失败')
+            messages.error(request, u'租客添加失败')
         return redirect(reverse('tenant'))
+
     sex_options = list()
     for sex in GENDER_CHOICES:
         sex_options.append({
@@ -279,12 +272,12 @@ def tenant_add(request):
             'full_value': sex[1]
         })
     tenant_form = TenantForm()
-    context = RequestContext(request, {
+
+    context = {
         'tenant_form': tenant_form,
         'sex_options': sex_options,
-    })
-    return render_to_response('chuzuwu/tenant-add.html',
-                              context_instance=context)
+    }
+    return render(request, 'chuzuwu/tenant-add.html', context=context)
 
 
 @login_required
@@ -299,7 +292,7 @@ def tenant_update(request, tid):
         if form.is_valid():
             form.save()
         else:
-            messages.error(request, '租客修改信息失败')
+            messages.error(request, u'租客修改信息失败')
         return redirect(reverse('tenant'))
 
     tenant_form = TenantForm()
@@ -309,23 +302,24 @@ def tenant_update(request, tid):
             'value': sex[0],
             'full_value': sex[1]
         })
-    context = RequestContext(request, {
+
+    context = {
         'tenant_form': tenant_form,
         'tenant': tenant,
         'sex_options': sex_options,
-    })
-    return render_to_response('chuzuwu/tenant-update.html',
-                              context_instance=context)
+    }
+    return render(request, 'chuzuwu/tenant-update.html', context=context)
 
 
 @login_required
 def room_index(request):
+    """房间管理->房间"""
+
     rooms = Room.objects.all().order_by('number')
-    context = RequestContext(request, {
+    context = {
         'rooms': rooms,
-    })
-    return render_to_response('chuzuwu/room-index.html',
-                              context_instance=context)
+    }
+    return render(request, 'chuzuwu/room-index.html', context=context)
 
 
 @login_required
@@ -337,10 +331,10 @@ def room_add(request):
         if form.is_valid():
             form.save()
         else:
-            messages.error(request, '房间添加失败')
+            messages.error(request, u'房间添加失败')
         return redirect(reverse('room'))
 
-    status_options = list()
+    status_options = []
     for status in ROOM_STATUS:
         status_options.append({
             'value': status[0],
@@ -348,13 +342,13 @@ def room_add(request):
         })
     tenant_options = Tenant.objects.all()
     room_form = RoomForm()
-    context = RequestContext(request, {
+
+    context = {
         'room_form': room_form,
         'status_options': status_options,
         'tenant_options': tenant_options,
-    })
-    return render_to_response('chuzuwu/room-add.html',
-                              context_instance=context)
+    }
+    return render(request, 'chuzuwu/room-add.html', context=context)
 
 
 @login_required
@@ -369,7 +363,7 @@ def room_update(request, rid):
         if form.is_valid():
             form.save()
         else:
-            messages.error(request, '房间更新不成功,请检查输入')
+            messages.error(request, u'房间更新不成功,请检查输入')
         return redirect(reverse('room'))
 
     status_options = list()
@@ -380,19 +374,21 @@ def room_update(request, rid):
         })
     tenant_options = Tenant.objects.all()
     room_form = RoomForm()
-    context = RequestContext(request, {
+
+    context = {
         'room': room,
         'room_form': room_form,
         'status_options': status_options,
         'tenant_options': tenant_options,
-    })
-    return render_to_response('chuzuwu/room-update.html',
-                              context_instance=context)
+    }
+    return render(request, 'chuzuwu/room-update.html', context=context)
 
 
 @login_required
 def room_record(request):
-    # 取最近的一个记录日期
+    """房间管理->入住记录，默认取最近的一个记录期"""
+
+    #: 支持通过周期搜索
     period_id = int(request.GET.get('period_id', '0'))
     if period_id == 0:
         try:
@@ -411,18 +407,20 @@ def room_record(request):
         next_period = get_next_period(period)
     room_records = RoomRecord.objects.filter(period=period)\
         .order_by('room__number', '-move_in_date').select_related('room', 'period')
-    context = RequestContext(request, {
+
+    context = {
         'room_records': room_records,
         'cur_period': period,
         'previous_period': previous_period,
         'next_period': next_period,
-    })
-    return render_to_response('chuzuwu/room-record-index.html',
-                              context_instance=context)
+    }
+    return render(request, 'chuzuwu/room-record-index.html', context=context)
 
 
 @login_required
 def room_record_add(request):
+    """房间管理->添加入住记录"""
+
     period_options = Period.objects.all().order_by('-period')
     room_options = Room.objects.all().order_by('number')
     if request.method == 'POST':
@@ -437,7 +435,7 @@ def room_record_add(request):
         tenant = Tenant.objects.get(id=tenant_id)
         room = Room.objects.get(id=room_id)
         if room.status == 'L':
-            messages.error(request, '%s房有人入住，请先退房' % room.number)
+            messages.error(request, u'%s房有人入住，请先退房' % room.number)
             return redirect(reverse('room_record'))
 
         datas.setlist('rent', [unicode(room.rent)])
@@ -450,19 +448,19 @@ def room_record_add(request):
             # room.rent = int(datas.get('rent'))
             room.save()
         else:
-            messages.error(request, '添加不成功')
+            messages.error(request, u'添加不成功')
         return redirect(reverse('room_record'))
 
     tenant_options = Tenant.objects.all()
     room_record_form = RoomRecordForm()
-    context = RequestContext(request, {
+
+    context = {
         'record_form': room_record_form,
         'tenant_options': tenant_options,
         'room_options': room_options,
         'period_options': period_options,
-    })
-    return render_to_response('chuzuwu/room-record-add.html',
-                              context_instance=context)
+    }
+    return render(request, 'chuzuwu/room-record-add.html', context=context)
 
 
 @login_required
@@ -498,24 +496,28 @@ def room_record_update(request, rid):
         if form.is_valid():
             form.save()
         else:
-            messages.error(request, '更新不成功')
+            messages.error(request, u'更新不成功')
         return redirect(reverse('room_record'))
 
     tenant_options = Tenant.objects.all()
     period_options = Period.objects.all().order_by('-period')
     room_record_form = RoomRecordForm()
-    context = RequestContext(request, {
+
+    context = {
         'record': room_record,
         'record_form': room_record_form,
         'tenant_options': tenant_options,
         'period_options': period_options,
-    })
-    return render_to_response('chuzuwu/room-record-update.html',
-                              context_instance=context)
+    }
+    return render(request, 'chuzuwu/room-record-update.html', context=context)
 
 
 @login_required
 def statistic_year(request):
+    """统计图表->收入趋势
+
+    统计年收入"""
+
     cur_year = int(request.GET.get('year', '0'))
     if cur_year == 0:
         cur_year = module_date.today().year
@@ -537,25 +539,31 @@ def statistic_year(request):
             result_list.append(result[str(month)])
         else:
             result_list.append(0)
-    context = RequestContext(request, {
+
+    context = {
         'result': json.dumps({'result': result_list}),
         'cur_year': cur_year,
         'pre_year': cur_year - 1,
         'next_year': cur_year + 1,
-    })
-    return render_to_response('chuzuwu/statistic-year.html',
-                              context_instance=context)
+    }
+    return render(request, 'chuzuwu/statistic-year.html', context=context)
 
 
 @login_required
 def download_record(request, pid):
+    """导出本月数据的接口，导出到xls格式的文件
+
+    :param pid: 记录期period id
+    """
+
     pid = int(pid)
     period = Period.objects.get(id=pid)
     records = Record.objects.filter(period=period).order_by('room__number')\
         .select_related('room', 'period', 'tenant')
     workbook = xlwt.Workbook()
     sheet = workbook.add_sheet('sheet1')
-    # red style
+
+    # 设置表格格式
     red_style = xlwt.XFStyle()
     pattern = xlwt.Pattern()
     pattern.pattern = xlwt.Pattern.SOLID_PATTERN
@@ -563,10 +571,11 @@ def download_record(request, pid):
     red_style.pattern = pattern
 
     col_len = len(EXCEL_RECORD_COL)
-    sheet.write_merge(0, 0, 0, col_len-1, unicode(period))
+    sheet.write_merge(0, 0, 0, col_len - 1, unicode(period))
     for i in range(col_len):
         sheet.write(1, i, EXCEL_RECORD_COL[i])
-    # 简单统计
+
+    #: 记录最后一行统计信息
     record_count = {
         'number': u'合计',
         'rent': 0,
@@ -589,7 +598,7 @@ def download_record(request, pid):
         # if not records[j].is_get_money:
         #     record_count['num_no_money'] += 1
 
-        x = j+2
+        x = j + 2
         sheet.write(x, 0, records[j].room.number)
         sheet.write(x, 1, unicode(records[j].tenant) if records[j].tenant is not None else '')
         sheet.write(x, 2, records[j].rent_fee if records[j].rent_fee != 0 else '')
@@ -598,13 +607,15 @@ def download_record(request, pid):
         sheet.write(x, 5, records[j].charge_fee if records[j].charge_fee != 0 else '')
         sheet.write(x, 6, records[j].tv_fee if records[j].tv_fee != 0 else '')
         sheet.write(x, 7, records[j].total_fee if records[j].total_fee != 0 else '')
+
         # 如果没给钱，设置style颜色
         # sheet.write(x, 7, '' if records[j].is_get_money else u'没给钱')
         sheet.write(x, 8, unicode(records[j].remark))
-        if (j+1) % 12 == 0:
+        if (j + 1) % 12 == 0:
             number_total = record_count['total'] - record_count['last_total']
             sheet.write(x, 9, number_total, red_style)
             record_count['last_total'] = record_count['total']
+
     # 写入最后一行统计信息
     rownum = len(records) + 2
     sheet.write(rownum, 0, record_count['number'])
@@ -616,6 +627,7 @@ def download_record(request, pid):
     sheet.write(rownum, 7, record_count['total'])
     # sheet.write(rownum, 8, u'没给钱的有%s个' % record_count['num_no_money'])
     sheet.write(rownum, 9, record_count['total'], red_style)
+
     # 保存到本地
     file_name = '%s.xls' % period.period.strftime('%Y-%m')
     file_fullname = EXCEL_EXPORT_PATH + file_name
@@ -630,6 +642,8 @@ def download_record(request, pid):
 
 @login_required
 def upload_record(request):
+    """导入数据页面"""
+
     if request.method == 'POST':
         file = request.FILES['file']
         handle_upload_record_file(file, EXCEL_IMPORT_PATH)
@@ -642,7 +656,7 @@ def upload_record(request):
 
         workbook = xlrd.open_workbook(EXCEL_IMPORT_PATH + file.name)
         sheet = workbook.sheet_by_index(0)
-        for rownum in range(2, sheet.nrows-1):
+        for rownum in range(2, sheet.nrows - 1):
             # 每一行格式[房号，租金，电费，网费，充电，小计，备注]
             room_number = int(sheet.row_values(rownum)[0])
             room, created = Room.objects.get_or_create(number=room_number,
@@ -663,14 +677,15 @@ def upload_record(request):
             record.save()
             if room_number == 412:
                 break
-        messages.success(request, '导入成功')
-    context = RequestContext(request, {})
-    return render_to_response('chuzuwu/upload-record.html',
-                              context_instance=context)
+        messages.success(request, u'导入成功')
+
+    return render(request, 'chuzuwu/upload-record.html', context={})
 
 
 @login_required
 def leave_room(request, rid):
+    """租客退房接口"""
+
     room = get_object_or_404(Room, pk=int(rid))
     return_data = {'room_number': room.number}
     if room.status == 'E':
@@ -693,11 +708,11 @@ def leave_room(request, rid):
                 room_record.move_out_date = module_date.today()
                 tasks = []
                 if not room_record.is_room_deposit_back and room_record.room_deposit != 0:
-                    tasks.append('退回押金：¥{0}'.format(room_record.room_deposit))
+                    tasks.append(u'退回押金：¥{0}'.format(room_record.room_deposit))
                 if not room_record.is_promise_deposit_back and room_record.promise_deposit != 0:
-                    tasks.append('退回订金：¥{0}'.format(room_record.promise_deposit))
+                    tasks.append(u'退回订金：¥{0}'.format(room_record.promise_deposit))
                 if not room_record.is_tv_deposit_back and room_record.tv_deposit != 0:
-                    tasks.append('退回电视机顶盒押金：¥{0}'.format(room_record.tv_deposit))
+                    tasks.append(u'退回电视机顶盒押金：¥{0}'.format(room_record.tv_deposit))
                 room_record.is_promise_deposit_back = True
                 room_record.is_room_deposit_back = True
                 room_record.is_tv_deposit_back = True
@@ -713,7 +728,8 @@ def leave_room(request, rid):
 
 @login_required
 def enter_room(request, rid):
-    # 暂时没用
+    """入住接口，暂时没用"""
+
     room = get_object_or_404(Room, pk=int(rid))
     return_data = {'room_number': room.number}
     datas = json.loads(request.POST['datas'])
@@ -722,7 +738,7 @@ def enter_room(request, rid):
     if room.status == 'L':
         return_data.update(RETURN_MSG['room_lived'])
         return HttpResponse(json.dumps(return_data, separator=(',', ':')),
-                                       content_type="application/json")
+                            content_type="application/json")
     else:
         period_id = int(datas['period_id'])
         # rent 从room获取
@@ -731,7 +747,7 @@ def enter_room(request, rid):
         tv_deposit = int(datas['tv_deposit'])
         remark = int(datas['remark'])
         period, created = get_object_or_404(Period, pk=period_id)
-        room_record = RoomRecord.objects.create(
+        RoomRecord.objects.create(
             room=room,
             period=period,
             tenant=tenant,
@@ -747,4 +763,4 @@ def enter_room(request, rid):
     room.tenant = tenant
     room.save()
     return HttpResponse(json.dumps(return_data, separator=(',', ':')),
-                                   content_type="application/json")
+                        content_type="application/json")

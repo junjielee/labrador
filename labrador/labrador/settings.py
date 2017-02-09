@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 
 """
 Django settings for labrador project.
@@ -110,12 +109,14 @@ LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'templates/locale'),
 )
 
-# 表格信息
+#: 表格信息
 EXCEL_RECORD_COL = [u'房号', u'租客', u'租金', u'电费', u'网费', u'充电', u'电视费',
                     u'小计', u'备注']
-# 价格信息
+#: 网费
 INTERNET_FEE = 40
+#: 充电费
 CHARGE_FEE = 10
+#: 电视费
 TV_FEE = 25
 
 # 接口返回信息

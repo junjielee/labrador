@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 
 from django.conf.urls import patterns, include, url
 from django.contrib.auth import views as auth_views
@@ -33,9 +32,9 @@ urlpatterns = patterns(
     url(r'^money/record/export/(?P<pid>\d+)$',
         'labrador.chuzuwu.views.download_record',
         name='download_record'),
-    url(r'^money/record/import$',
-        'labrador.chuzuwu.views.upload_record',
-        name='import_record'),
+    # url(r'^money/record/import$',
+    #     'labrador.chuzuwu.views.upload_record',
+    #     name='import_record'),
     url(r'^tenant$',
         'labrador.chuzuwu.views.tenant_index',
         name='tenant'),
