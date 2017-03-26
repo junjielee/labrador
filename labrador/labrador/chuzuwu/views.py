@@ -18,6 +18,9 @@ from ..settings import (
     RETURN_MSG,
     EXCEL_EXPORT_PATH,
     EXCEL_IMPORT_PATH,
+    INTERNET_FEE,
+    CHARGE_FEE,
+    TV_FEE
 )
 
 from .models import (
@@ -135,6 +138,9 @@ def money_add(request):
         'period_options': period_options,
         'room_options': room_options,
         'record_form': record_form,
+        'internet_fee': INTERNET_FEE,
+        'charge_fee': CHARGE_FEE,
+        'tv_fee': TV_FEE,
     }
 
     if request.method == 'POST':
@@ -204,7 +210,7 @@ def money_add(request):
     cur_room = get_first_no_record_room(room_options, period_options)
     cur_period = Period.objects.all().order_by('-period')[0]
 
-    context.udpate({
+    context.update({
         'cur_room': cur_room,
         'cur_period': cur_period,
     })
@@ -238,6 +244,9 @@ def money_update(request, rid):
         'record_form': record_form,
         'period_options': period_options,
         'tenant_options': tenant_options,
+        'internet_fee': INTERNET_FEE,
+        'charge_fee': CHARGE_FEE,
+        'tv_fee': TV_FEE,
     }
     return render(request, 'chuzuwu/money-update.html', context=context)
 
