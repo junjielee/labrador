@@ -94,11 +94,12 @@ def calculate_total_fee(datas):
     """计算total_fee的值"""
 
     total_fee = (
-        int(datas.get('rent_fee')) +
-        float(datas.get('electric_fee')) +
-        int(datas.get('charge_fee')) +
-        int(datas.get('internet_fee')) +
-        int(datas.get('tv_fee'))
+        int(datas.get('rent_fee', 0)) +
+        float(datas.get('electric_fee', 0)) +
+        int(datas.get('charge_fee', 0)) +
+        int(datas.get('internet_fee', 0)) +
+        int(datas.get('tv_fee', 0)) +
+        int(datas.get('special_fee', 0))
     )
     return total_fee
 
@@ -156,6 +157,7 @@ def get_monthly_statistics(records):
         'internet': 0,
         'charge': 0,
         'tv': 0,
+        'special': 0,
         'total': 0,
         'num_no_money': 0,
     }
@@ -166,6 +168,7 @@ def get_monthly_statistics(records):
         record_count['internet'] += record.internet_fee
         record_count['charge'] += record.charge_fee
         record_count['tv'] += record.tv_fee
+        record_count['special'] += record.special_fee
         record_count['total'] += record.total_fee
         if not record.is_get_money:
             record_count['num_no_money'] += 1

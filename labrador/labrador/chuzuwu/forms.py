@@ -32,8 +32,8 @@ class RoomRecordForm(forms.ModelForm):
 class RecordForm(forms.ModelForm):
     class Meta:
         model = Record
-        fields = ['room', 'period', 'tenant', 'rent_fee', 'electricity', 'electric_fee',
-                  'internet_fee', 'charge_fee', 'tv_fee', 'total_fee', 'remark']
+        fields = ['room', 'period', 'rent_fee', 'electricity', 'electric_fee',
+                  'internet_fee', 'charge_fee', 'tv_fee', 'special_fee', 'total_fee', 'remark']
 
 
 # class UpdateRecordForm(forms.ModelForm):

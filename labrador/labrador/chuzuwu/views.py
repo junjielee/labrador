@@ -43,7 +43,6 @@ from .utils import (
     get_first_no_record_room,
     get_last_period,
     get_next_period,
-    get_room_tenant,
     calculate_total_fee,
     file_iterator,
     handle_upload_record_file,
@@ -148,62 +147,62 @@ def money_add(request):
         room_id = datas.get('room')
         if room_id != '':
             room = Room.objects.get(id=int(room_id))
-        tenant = get_room_tenant(room)
-        if tenant is None:
-            messages.info(request, u'%s房间还没入住记录,请先添加入住记录' % room.number)
-            return redirect('room_record_add')
-        datas.setlist('tenant', [unicode(tenant.id)])
+        # tenant = get_room_tenant(room)
+        # if tenant is None:
+        #     messages.info(request, u'%s房间还没入住记录,请先添加入住记录' % room.number)
+        #     return redirect('room_record_add')
+        # datas.setlist('tenant', [unicode(tenant.id)])
         # 租金从输入中获取，不从房间获取
         # datas.setlist('rent_fee', [unicode(room.rent)])
         datas = change_form_fee(datas)
         period_id = datas.get('period')
         total_fee = calculate_total_fee(datas)
-        if tenant:
-            try:
-                record = Record.objects.get(room_id=int(room_id),
-                                            period_id=int(period_id))
-                record.rent_fee += int(datas.get('rent_fee'))
-                record.electric_fee += float(datas.get('electric_fee'))
-                record.internet_fee += int(datas.get('internet_fee'))
-                record.charge_fee += int(datas.get('charge_fee'))
-                record.tv_fee += int(datas.get('tv_fee'))
-                record.total_fee += total_fee
-                record.remark += u"，" + unicode(datas.get('remark'))
-                record.save()
-            except Record.DoesNotExist:
-                datas.setlist('total_fee', [unicode(total_fee)])
-                form = RecordForm(datas)
-                if form.is_valid():
-                    form.save()
-            else:
-                messages.info(request, u'%s入住的房间%s，这个月已经有记录了' % (
-                    tenant.name, room.number))
-            finally:
-                # 准备下一房的信息输入
-                cur_period_records = Record.objects.filter(period_id=period_id)\
-                    .select_related('room').order_by('room__number')
-                if cur_period_records.count() == room_options.count():
-                    return redirect(reverse('money') + '?period_id=' + period_id)
-                elif cur_period_records.count() < room_options.count():
-                    cur_period = Period.objects.get(id=int(period_id))
-                    end_rooms = [112, 212, 312]
-                    next_number = room.number + 1
-                    if room.number in end_rooms:
-                        next_number = (room.number / 100 + 1) * 100 + 1
-                    elif room.number == 412:
-                        next_number = 101
-                    try:
-                        cur_room = Room.objects.get(number=next_number)
-                    except Room.DoesNotExist:
-                        messages.error(request, u'下月个房间获取不到数据，请联系管理员')
-                        return redirect(reverse('money_add'))
-                    context.update({
-                        'cur_period': cur_period,
-                        'cur_room': cur_room,
-                    })
-                    return render(request, 'chuzuwu/money-add.html', context=context)
-                else:
+        # if tenant:
+        try:
+            record = Record.objects.get(room_id=int(room_id),
+                                        period_id=int(period_id))
+            record.rent_fee += int(datas.get('rent_fee', 0))
+            record.electric_fee += float(datas.get('electric_fee', 0))
+            record.internet_fee += int(datas.get('internet_fee', 0))
+            record.charge_fee += int(datas.get('charge_fee', 0))
+            record.tv_fee += int(datas.get('tv_fee', 0))
+            record.special_fee += int(datas.get('special_fee', 0))
+            record.total_fee += total_fee
+            record.remark += u"，" + unicode(datas.get('remark'))
+            record.save()
+        except Record.DoesNotExist:
+            datas.setlist('total_fee', [unicode(total_fee)])
+            form = RecordForm(datas)
+            if form.is_valid():
+                form.save()
+        else:
+            messages.info(request, u'房间%s这个月已经有记录了' % room.number)
+        finally:
+            # 准备下一房的信息输入
+            cur_period_records = Record.objects.filter(period_id=period_id)\
+                .select_related('room').order_by('room__number')
+            if cur_period_records.count() == room_options.count():
+                return redirect(reverse('money') + '?period_id=' + period_id)
+            elif cur_period_records.count() < room_options.count():
+                cur_period = Period.objects.get(id=int(period_id))
+                end_rooms = [112, 212, 312]
+                next_number = room.number + 1
+                if room.number in end_rooms:
+                    next_number = (room.number / 100 + 1) * 100 + 1
+                elif room.number == 412:
+                    next_number = 101
+                try:
+                    cur_room = Room.objects.get(number=next_number)
+                except Room.DoesNotExist:
+                    messages.error(request, u'下月个房间获取不到数据，请联系管理员')
                     return redirect(reverse('money_add'))
+                context.update({
+                    'cur_period': cur_period,
+                    'cur_room': cur_room,
+                })
+                return render(request, 'chuzuwu/money-add.html', context=context)
+            else:
+                return redirect(reverse('money_add'))
         return redirect(reverse('money'))
 
     # 获取当前周期还没输入的一个room
